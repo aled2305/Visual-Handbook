@@ -106,21 +106,27 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     @available(iOS 10.0, *)
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
         
+        if let u = notification.request.content.userInfo["custom"] as? [AnyHashable : Any] {
+            if let url = u["u"] as? String {
+                print("APPDELEGATE: open url \(url) with completionHandler")
+                
+                self.openURL(url: URL(string: url)!)
+                
+            }
+        }
+        
         completionHandler([UNNotificationPresentationOptions.alert, UNNotificationPresentationOptions.sound, UNNotificationPresentationOptions.badge])
     }
     
     func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable : Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
-        if #available(iOS 10.0, *) {
-//            completionHandler()
-        } else {
-            // Fallback on earlier versions
-        }
+
     }
     
     @available(iOS 10.0, *)
     private func userNotificationCenter(center: UNUserNotificationCenter, willPresentNotification notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
         
         print(notification.request.content.userInfo)
+        
     }
     
     func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable: Any]) {
@@ -150,9 +156,36 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         }
     }
     
+    func application(_ app: UIApplication, open url: URL, options: [UIApplicationOpenURLOptionsKey : Any] = [:]) -> Bool {
+        print("APPDELEGATE: open url \(url)")
+        
+        self.openURL(url: url)
+
+        return true
+    }
+    
+    func open(_ url: URL, options: [String : Any] = [:], completionHandler completion: ((Bool) -> Swift.Void)? = nil){
+        print("APPDELEGATE: open url \(url) with completionHandler")
+        
+        self.openURL(url: url)
+
+        completion?(true)
+    }
+    
+    func application(_ application: UIApplication, handleOpen url: URL) -> Bool {
+        self.openURL(url: url)
+        return true
+    }
+    
     func application(_ application: UIApplication, open url: URL, sourceApplication: String?, annotation: Any) -> Bool {
         print("openURL \(url)")
         
+        self.openURL(url: url)
+        
+        return true
+    }
+    
+    func openURL(url:URL) {
         var urlString = url.absoluteString
         let queryArray = urlString.components(separatedBy: "//")
         
@@ -167,9 +200,20 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         let parsedURLString:String? = "\(host)://\(urlString)"
         if parsedURLString != nil {
             UserDefaults.standard.set(parsedURLString, forKey: "URL")
+            
+            if UIApplication.shared.applicationState == UIApplicationState.background || UIApplication.shared.applicationState == UIApplicationState.inactive {
+                
+            } else {
+                if let window = self.window {
+                    if let rootViewController = window.rootViewController {
+                        if rootViewController is ViewController {
+                            (rootViewController as! ViewController).loadWebView()
+                        }
+                    }
+                }
+            }
+
         }
-        
-        return true
     }
     
     static func dataPath() -> String {

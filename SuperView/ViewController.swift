@@ -377,7 +377,7 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
     }
     
     func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
-        print("NAVIGATION URL: \(navigationAction.request.url!.host)")
+        print("NAVIGATION URL: \(String(describing: navigationAction.request.url!.host))")
         
         let url = navigationAction.request.url?.absoluteString
         
@@ -590,7 +590,7 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
                         numberFormatter.locale = product.priceLocale
                         numberFormatter.numberStyle = .currency
                         let priceString = numberFormatter.string(from: product.price)
-                        print("Product: \(product.localizedDescription), price: \(priceString)")
+                        print("Product: \(product.localizedDescription), price: \(String(describing: priceString))")
                         
                         let alert = UIAlertController(title: "In-App Purchase", message: "Do you want to purchase Remove Ads for \(priceString!)", preferredStyle: UIAlertControllerStyle.alert)
                         alert.addAction(UIAlertAction(title: "Remove Ads", style: .default, handler: { (action: UIAlertAction!) in
@@ -605,7 +605,7 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
                         self.present(alert, animated: true, completion: nil)
                         
                     } else {
-                        print("Error: \(result.error)")
+                        print("Error: \(String(describing: result.error))")
                         
                         let alert = UIAlertController(title: "In-App Purchase", message: "Product not found", preferredStyle: UIAlertControllerStyle.alert)
                         alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { (action: UIAlertAction!) in

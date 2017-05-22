@@ -93,52 +93,42 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     
     func tokenRefreshNotification(_ notification: Notification) {
         let refreshedToken:String? = FIRInstanceID.instanceID().token()
-        print("FOREBASE TOKEN: \(refreshedToken)")
+        print("FOREBASE TOKEN: \(String(describing: refreshedToken))")
         FIRMessaging.messaging().connect { (error) in
             if (error != nil) {
-                print("Unable to connect with FCM. \(error)")
+                print("Unable to connect with FCM. \(String(describing: error))")
             } else {
                 print("Connected to FCM.")
             }
         }
     }
     
-    @available(iOS 10.0, *)
-    func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
-        
-        if let u = notification.request.content.userInfo["custom"] as? [AnyHashable : Any] {
-            if let url = u["u"] as? String {
-                print("APPDELEGATE: open url \(url) with completionHandler")
-                
-                self.openURL(url: URL(string: url)!)
-                
-            }
-        }
-        
-        completionHandler([UNNotificationPresentationOptions.alert, UNNotificationPresentationOptions.sound, UNNotificationPresentationOptions.badge])
+    func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable : Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
+        self.handleUserInfo(userInfo: userInfo)
     }
     
-    func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable : Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
-
+    func application(_ application: UIApplication, handleActionWithIdentifier identifier: String?, forRemoteNotification userInfo: [AnyHashable : Any], completionHandler: @escaping () -> Void) {
+        self.handleUserInfo(userInfo: userInfo)
+    }
+    
+    @available(iOS 10.0, *)
+    func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+        self.handleUserInfo(userInfo: notification.request.content.userInfo)
+        completionHandler([UNNotificationPresentationOptions.alert, UNNotificationPresentationOptions.sound, UNNotificationPresentationOptions.badge])
     }
     
     @available(iOS 10.0, *)
     private func userNotificationCenter(center: UNUserNotificationCenter, willPresentNotification notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
-        
-        print(notification.request.content.userInfo)
-        
+        self.handleUserInfo(userInfo: notification.request.content.userInfo)
+    }
+    
+    @available(iOS 10.0, *)
+    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
+        self.handleUserInfo(userInfo: response.notification.request.content.userInfo)
     }
     
     func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable: Any]) {
-        if application.applicationState == UIApplicationState.background || application.applicationState == UIApplicationState.inactive {
-            
-        } else {
-            print("user info: %@", userInfo)
-            let notificationMessage : AnyObject? =  userInfo["alert"] as AnyObject?
-            let alert = UIAlertController(title: "SuperView", message:notificationMessage as? String, preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "OK.", style: .default) { _ in })
-            self.window?.rootViewController?.present(alert, animated: true){}
-        }
+        self.handleUserInfo(userInfo: userInfo)
     }
     
     func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
@@ -185,19 +175,35 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         return true
     }
     
+    func handleUserInfo(userInfo:[AnyHashable : Any]) {
+        if let custom = userInfo["custom"] as? [AnyHashable : Any] {
+            if let a = custom["a"] as? [AnyHashable : Any] {
+                if let url = a["url"] as? String {
+                    print("url: \(url)")
+                    self.openURL(url: URL(string: url)!)
+                }
+            }
+        }
+    }
+    
     func openURL(url:URL) {
         var urlString = url.absoluteString
-        let queryArray = urlString.components(separatedBy: "//")
-        
+        let urlSeperated = urlString.components(separatedBy: "//")
+        var parsedURLString:String? = nil
         var host:String = "http"
-        if queryArray.count > 2 {
-            host = queryArray[1]
-            urlString = queryArray[2]
+
+        if urlSeperated.count > 1 {
+            if urlSeperated.count > 2 {
+                host = urlSeperated[1]
+                urlString = urlSeperated[2]
+            } else {
+                urlString = urlSeperated[1]
+            }
+            parsedURLString = "\(host)://\(urlString)"
         } else {
-            urlString = queryArray[1]
+            parsedURLString = "\(host)://\(urlString)"
         }
         
-        let parsedURLString:String? = "\(host)://\(urlString)"
         if parsedURLString != nil {
             UserDefaults.standard.set(parsedURLString, forKey: "URL")
             

@@ -12,13 +12,14 @@ import MBProgressHUD
 import GoogleMobileAds
 import SwiftyUserDefaults
 import SwiftyStoreKit
+import Firebase
 
 class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKScriptMessageHandler, MBProgressHUDDelegate, GADBannerViewDelegate, GADInterstitialDelegate  {
     
     @IBOutlet weak var backgroundImage: UIImageView?
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     @IBOutlet weak var progressBar: UIProgressView!
-
+    
     var bannerView: GADBannerView?
     var toolbar:UIToolbar?
     var backButton: UIBarButtonItem?
@@ -43,7 +44,7 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         
         self.activityIndicator.startAnimating()
         self.progressBar.progressTintColor = UIColor.green
-
+        
         self.request.testDevices = ["bb394635b98430350b538d1e2ea1e9d6", kGADSimulatorID];
         
         self.loadToolbar()
@@ -123,8 +124,11 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         thisPref.javaScriptCanOpenWindowsAutomatically = true;
         thisPref.javaScriptEnabled = true
         theConfiguration!.preferences = thisPref;
-
+        
         self.wkWebView = WKWebView(frame: self.getFrame(), configuration: theConfiguration!)
+        // [START add_handler]
+        self.wkWebView?.configuration.userContentController.add(self, name: "firebase")
+        // [END add_handler]
         if self.mainURL != nil {
             let requestObj = URLRequest(url: self.mainURL!)
             _ = self.wkWebView?.load(requestObj)
@@ -186,7 +190,7 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
             }
         }
     }
-
+    
     func loadInterstitalAd() {
         if Defaults[.adsPurchased] == false {
             let appData = NSDictionary(contentsOfFile: AppDelegate.dataPath())
@@ -228,7 +232,7 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
     }
     
     func adViewDidReceiveAd(_ bannerView: GADBannerView) {
-
+        
     }
     
     func adView(_ bannerView: GADBannerView, didFailToReceiveAdWithError error: GADRequestError) {
@@ -305,6 +309,9 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
     
     func getViewController(_ configuration:WKWebViewConfiguration) -> UIViewController {
         let webView:WKWebView = WKWebView(frame: self.view.frame, configuration: configuration)
+        // [START add_handler]
+        webView.configuration.userContentController.add(self, name: "firebase")
+        // [END add_handler]
         webView.frame = UIScreen.main.bounds
         webView.autoresizingMask = [.flexibleWidth, .flexibleHeight];
         webView.navigationDelegate = self
@@ -344,7 +351,17 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
     }
     
     func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
-        print(message)
+        guard let body = message.body as? [String: Any] else { return }
+        guard let command = body["command"] as? String else { return }
+        guard let name = body["name"] as? String else { return }
+        
+        if command == "setUserProperty" {
+            guard let value = body["value"] as? String else { return }
+            FIRAnalytics.setUserPropertyString(value, forName: name)
+        } else if command == "logEvent" {
+            guard let params = body["parameters"] as? [String: NSObject] else { return }
+            FIRAnalytics.logEvent(withName: name, parameters: params)
+        }
     }
     
     func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
@@ -353,8 +370,8 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
     
     func webView(_ webView: WKWebView, didCommit navigation: WKNavigation!) {
         // You can inject java script here if required as below
-//        let javascript = "var meta = document.createElement('meta');meta.setAttribute('name', 'viewport');meta.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no');document.getElementsByTagName('head')[0].appendChild(meta);";
-//        self.wkWebView.evaluateJavaScript(javascript, completionHandler: nil)
+        //        let javascript = "var meta = document.createElement('meta');meta.setAttribute('name', 'viewport');meta.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no');document.getElementsByTagName('head')[0].appendChild(meta);";
+        //        self.wkWebView.evaluateJavaScript(javascript, completionHandler: nil)
     }
     
     func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
@@ -432,7 +449,7 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
                 print("normal http request")
             #endif
         }
-
+        
         let domain = self.getDomainFromURL(navigationAction.request.url!)
         
         if (navigationAction.navigationType == WKNavigationType.linkActivated) {
@@ -519,7 +536,7 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
             self.bannerView?.frame = CGRect(x: (bounds.width - 320) / 2, y: y, width: 320, height: 50)
             self.wkWebView?.frame = self.getFrame()
         }) { (success) in
-
+            
         }
     }
     
@@ -534,7 +551,7 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         if self.toolbar != nil {
             height = height - self.toolbar!.frame.height
         }
-
+        
         return  CGRect(x: 0, y: 0, width: bounds.width, height: height)
     }
     
@@ -546,12 +563,12 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
             self.forwardButton = UIBarButtonItem(image: UIImage(named: "forward"), style: .plain, target: self, action: #selector(ViewController.forward))
             self.reloadButton = UIBarButtonItem(image: UIImage(named: "refresh"), style: .plain, target: self, action: #selector(ViewController.reload))
             self.iapButton = UIBarButtonItem(image: UIImage(named: "block-ad"), style: .plain, target: self, action: #selector(ViewController.removeAdsAction))
-
+            
             self.backButton?.tintColor = UIColor(hexString: "0e8494")
             self.forwardButton?.tintColor = UIColor(hexString: "0e8494")
             self.reloadButton?.tintColor = UIColor(hexString: "0e8494")
             self.iapButton?.tintColor = UIColor(hexString: "0e8494")
-
+            
             let fixedSpaceButton = UIBarButtonItem(barButtonSystemItem: .fixedSpace, target: self, action: nil)
             fixedSpaceButton.width = 42
             let flexibleSpaceButton = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: self, action: nil)

@@ -8,8 +8,6 @@
 
 import UIKit
 import Firebase
-import FirebaseMessaging
-import FirebaseInstanceID
 import SwiftyUserDefaults
 import SwiftyStoreKit
 

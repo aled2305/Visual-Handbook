@@ -61,6 +61,8 @@
 	<string>Advertisement would like to always use location.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Advertisement would like to store a photo.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>App would like to use camera</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>remote-notification</string>

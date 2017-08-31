@@ -377,9 +377,9 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
     
     func getViewController(_ configuration:WKWebViewConfiguration) -> UIViewController {
         let webView:WKWebView = WKWebView(frame: self.view.frame, configuration: configuration)
-        // [START add_handler]
-        webView.configuration.userContentController.add(self, name: "firebase")
-        // [END add_handler]
+//        // [START add_handler]
+//        webView.configuration.userContentController.add(self, name: "firebase")
+//        // [END add_handler]
         webView.frame = UIScreen.main.bounds
         webView.autoresizingMask = [.flexibleWidth, .flexibleHeight];
         webView.navigationDelegate = self
@@ -412,6 +412,7 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
     
     func dismissViewController() {
         self.dismiss(animated: true, completion: nil)
+        self.load.hide(animated: true)
     }
     
     func userContentController(_ userContentController:WKUserContentController, message:WKScriptMessage) {

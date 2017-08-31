@@ -6,6 +6,7 @@
 //  Copyright (c) 2016 Brommko LLC. All rights reserved.
 //
 
+import Foundation
 import UIKit
 import WebKit
 import MBProgressHUD
@@ -13,6 +14,7 @@ import GoogleMobileAds
 import SwiftyUserDefaults
 import SwiftyStoreKit
 import Firebase
+import WKBridge
 
 class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKScriptMessageHandler, MBProgressHUDDelegate, GADBannerViewDelegate, GADInterstitialDelegate  {
     
@@ -104,18 +106,21 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
     }
     
     func getURL() {
-        if let URL = UserDefaults.standard.string(forKey: "URL") {
-            self.mainURL = Foundation.URL(string: URL)
+        if let storedURL = UserDefaults.standard.string(forKey: "URL") {
+            self.mainURL = URL(string: storedURL)
         }
         
-        let appData = NSDictionary(contentsOfFile: AppDelegate.dataPath())
-        if let urlString = appData?.value(forKey: "URL") as? String {
-            if !urlString.isEmpty {
-                if self.mainURL == nil {
-                    self.mainURL = URL(string: urlString)
+        if self.mainURL == nil {
+            let appData = NSDictionary(contentsOfFile: AppDelegate.dataPath())
+            if let urlString = appData?.value(forKey: "URL") as? String {
+                if !urlString.isEmpty {
+                    if self.mainURL == nil {
+                        self.mainURL = URL(string: urlString)
+                    }
                 }
             }
         }
+
     }
     
     func loadWebSite() {
@@ -148,8 +153,67 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         
         self.wkWebView?.navigationDelegate = self
         self.wkWebView?.uiDelegate = self
+        self.wkWebView?.bridge.printScriptMessageAutomatically = true
         self.wkWebView?.addObserver(self, forKeyPath: "loading", options: .new, context: nil)
         self.wkWebView?.addObserver(self, forKeyPath: "estimatedProgress", options: .new, context: nil)
+        
+        self.wkWebView?.bridge.register({ (parameters, completion) in
+            let userID = OneSignal.getPermissionSubscriptionState()?.subscriptionStatus.userId
+            completion(.success(["token": userID ?? "No Token"]))
+        }, for: "onesignaltoken")
+        
+        self.wkWebView?.bridge.register({ (parameters, completion) in
+            let token = InstanceID.instanceID().token()
+            completion(.success(["token": token ?? "No Token"]))
+        }, for: "firebasetoken")
+        
+        self.wkWebView?.bridge.register({ (parameters, completion) in
+            completion(.success(["purchased": Defaults[.adsPurchased]]))
+        }, for: "app_purchased")
+        
+        self.wkWebView?.bridge.register({ (parameters, completion) in
+            let title:String! = parameters?["title"] as! String
+            let message:String! = parameters?["message"] as! String
+            
+            if #available(iOS 10.0, *) {
+                let center = UNUserNotificationCenter.current()
+                let content = UNMutableNotificationContent()
+                content.title = title
+                content.body = message
+                content.categoryIdentifier = "alarm"
+                content.userInfo = ["customData": "fizzbuzz"]
+                content.sound = UNNotificationSound.default()
+                
+                let trigger = UNTimeIntervalNotificationTrigger.init(timeInterval: 3, repeats: false)
+                let request = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: trigger)
+                center.add(request)
+            } else {
+                
+                // ios 9
+                let notification = UILocalNotification()
+                notification.fireDate = NSDate(timeIntervalSinceNow: 5) as Date
+                notification.alertBody = title
+                notification.alertAction = message
+                notification.soundName = UILocalNotificationDefaultSoundName
+                UIApplication.shared.scheduleLocalNotification(notification)
+            }
+            
+        }, for: "create_notification")
+        
+        self.wkWebView?.bridge.register({ (parameters, completion) in
+            self.load.hide(animated: true)
+            self.load = MBProgressHUD.showAdded(to: self.view, animated: true)
+            self.load.mode = MBProgressHUDMode.indeterminate
+            self.load.isUserInteractionEnabled = false
+        }, for: "show_loader")
+        
+        self.wkWebView?.bridge.register({ (parameters, completion) in
+            self.load.hide(animated: true)
+        }, for: "hide_loader")
+        
+        self.wkWebView?.bridge.register({ (parameters, completion) in
+            RateMyApp.sharedInstance.showRatingAlert()
+        }, for: "rate_app")
     }
     
     func fileURLForBuggyWKWebView8(fileURL: URL) throws -> URL {
@@ -357,10 +421,10 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         
         if command == "setUserProperty" {
             guard let value = body["value"] as? String else { return }
-            FIRAnalytics.setUserPropertyString(value, forName: name)
+            Analytics.setUserProperty(value, forName: name)
         } else if command == "logEvent" {
             guard let params = body["parameters"] as? [String: NSObject] else { return }
-            FIRAnalytics.logEvent(withName: name, parameters: params)
+            Analytics.logEvent(name, parameters: params)
         }
     }
     
@@ -639,15 +703,15 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         let appData = NSDictionary(contentsOfFile: AppDelegate.dataPath())
         if let productId = appData?.value(forKey: "RemoveAdsPurchaseId") as? String {
             SwiftyStoreKit.restorePurchases() { results in
-                if results.restoreFailedProducts.count > 0 {
-                    print("Restore Failed: \(results.restoreFailedProducts)")
+                if results.restoreFailedPurchases.count > 0 {
+                    print("Restore Failed: \(results.restoreFailedPurchases)")
                     let alert = UIAlertController(title: "In-App Purchase", message: "Restore Failed", preferredStyle: UIAlertControllerStyle.alert)
                     alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
                     self.present(alert, animated: true, completion: nil)
-                } else if results.restoredProducts.count > 0 {
-                    print("Restore Success: \(results.restoredProducts)")
+                } else if results.restoredPurchases.count > 0 {
+                    print("Restore Success: \(results.restoredPurchases)")
                     
-                    for restoredProduct in results.restoredProducts{
+                    for restoredProduct in results.restoredPurchases{
                         if restoredProduct.productId == productId {
                             self.removeAds()
                             let alert = UIAlertController(title: "In-App Purchase", message: "Restore successful!", preferredStyle: UIAlertControllerStyle.alert)
@@ -771,5 +835,11 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         return UIStatusBarStyle.lightContent
     }
     
+    deinit {
+        self.wkWebView?.removeObserver(self, forKeyPath: "loading")
+        self.wkWebView?.removeObserver(self, forKeyPath: "estimatedProgress")
+        self.wkWebView?.removeBridge()
+
+    }
 }
 

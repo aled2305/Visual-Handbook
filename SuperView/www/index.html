@@ -205,6 +205,88 @@
                     </div>
                 </div>
 
+                <div class="col-md-16">
+                    <div class="card">
+                        <div class="card-block">
+                            <h4 class="card-title">OneSignal Token</h4>
+                            <p id="onesignal_token"></p>
+                            <div class="read-more">
+                                <a id="get_onesignal_token" class="btn btn-primary" onClick="getOneSignalToken()">Get OneSignal token</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-16">
+                    <div class="card">
+                        <div class="card-block">
+                            <h4 class="card-title">Firebase Token</h4>
+                            <p id="firebase_token"></p>
+                            <div class="read-more">
+                                <a id="get_firebase_token" class="btn btn-primary" onClick="getFirebaseToken()">Get firebase token</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-16">
+                    <div class="card">
+                        <div class="card-block">
+                            <h4 class="card-title">Is app purchased</h4>
+                            <p id="purchased"></p>
+                            <div class="read-more">
+                                <a id="is_ads_removed" class="btn btn-primary" onClick="isProductPurchased()" >Is purchased</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-16">
+                    <div class="card">
+                        <div class="card-block">
+                            <h4 class="card-title">Local Notification</h4>
+                            <div class="read-more">
+                                <a id="local_notification" class="btn btn-primary" onClick="createNotification('SuperView', 'This is a test notification')" >Test Notification</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-16">
+                    <div class="card">
+                        <div class="card-block">
+                            <h4 class="card-title">Show Loader</h4>
+                            <div class="read-more">
+                                <a id="show_loader" class="btn btn-primary" onClick="showLoader()" >Show Loader</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-16">
+                    <div class="card">
+                        <div class="card-block">
+                            <h4 class="card-title">Hide Loader</h4>
+                            <div class="read-more">
+                                <a id="hide_loader" class="btn btn-primary" onClick="hideLoader()" >Hide Loader</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-16">
+                    <div class="card">
+                        <div class="card-block">
+                            <h4 class="card-title">Rate app</h4>
+                            <div class="read-more">
+                                <a id="rate-app" class="btn btn-primary" onClick="rateApp()">Rate App</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
             </div>
             <!--/.Second row-->
             <hr>
@@ -229,6 +311,49 @@
 
     <script type="text/javascript" src="js/script.js"></script>
 
+    <script type="text/javascript">
+
+        function getOneSignalToken() {
+            window.bridge.post('onesignaltoken', {}, (results, error) => {
+                $('#onesignal_token').html(results.token)
+            })
+        }
+
+        function getFirebaseToken() {
+             window.bridge.post('firebasetoken', {}, (results, error) => {
+                $('#firebase_token').html(results.token)
+            })
+        }
+
+        function isProductPurchased() {
+             window.bridge.post('app_purchased', {}, (results, error) => {
+                $('#purchased').html("purchased: " + results.purchased)
+            })
+        }
+
+        function createNotification(display, message) {
+            window.bridge.post('create_notification', {title: display, message: message})
+        }
+
+        function showLoader() {
+            window.bridge.post('show_loader', {})
+        }
+
+        function hideLoader() {
+            window.bridge.post('hide_loader', {})
+        }
+
+        function rateApp() {
+            window.bridge.post('rate_app', {})
+        }
+
+    </script>
+
+    <script type="text/javascript">
+    /* wk.bridge.min.js | v0.2 */
+    (function(){if(window.isIOS){return}window.isIOS=function(){return navigator&&navigator.userAgent&&(/(iPhone|iPad|iPod|iOS)/i.test(navigator.userAgent))}}());
+    (function(){if(window.bridge){return}window.bridge=function(){var callbacks=[],callbackID=0,registerHandlers=[];document.addEventListener("PacificDidReceiveNativeCallback",function(e){if(e.detail){var detail=e.detail;var id=isNaN(parseInt(detail.id))?-1:parseInt(detail.id);if(id!=-1){callbacks[id]&&callbacks[id](detail.parameters,detail.error);delete callbacks[id]}}},false);document.addEventListener("PacificDidReceiveNativeBroadcast",function(e){if(e.detail){var detail=e.detail;var name=detail.name;if(name!==undefined&&registerHandlers[name]){var namedListeners=registerHandlers[name];if(namedListeners instanceof Array){var parameters=detail.parameters;namedListeners.forEach(function(handler){handler(parameters)})}}}},false);return{"post":function(action,parameters,callback,print){var id=callbackID++;callbacks[id]=callback;if(window.webkit&&window.webkit.messageHandlers&&window.webkit.messageHandlers.pacific){window.webkit.messageHandlers.pacific.postMessage({"action":action,"parameters":parameters,"callback":id,"print":print||0})}},"on":function(name,callback){var namedListeners=registerHandlers[name];if(!namedListeners){registerHandlers[name]=namedListeners=[]}namedListeners.push(callback);return function(){namedListeners[indexOf(namedListeners,callback)]=null}},"off":function(name){delete registerHandlers[name]}}}()}());
+    </script>
 
 </body>
 

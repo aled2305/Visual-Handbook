@@ -11,7 +11,7 @@ target 'SuperView' do
     pod 'OneSignal'
     pod 'SwiftyUserDefaults'
     pod 'SwiftyStoreKit'
-
+    pod 'WKBridge'
 end
 
 post_install do |installer|

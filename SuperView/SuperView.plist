@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>URL</key>
-	<string>http://cnn.com</string>
+	<string></string>
 	<key>Toolbar</key>
 	<true/>
 	<key>AdMobBannerUnitId</key>
@@ -11,10 +11,12 @@
 	<key>AdMobInterstitialUnitId</key>
 	<string></string>
 	<key>OneSignalAppID</key>
-	<string></string>
+	<string>ec291a7f-c387-4c06-a37e-34b0b24d97bf</string>
 	<key>ShowInterstitialInSecoundsEvery</key>
 	<string>60</string>
 	<key>RemoveAdsPurchaseId</key>
 	<string>com.brommko.universalwebview.removeads</string>
+	<key>AppIdAssignedFromApple</key>
+	<string></string>
 </dict>
 </plist>

@@ -12,8 +12,8 @@ import SwiftyUserDefaults
 import SwiftyStoreKit
 
 @UIApplicationMain
-class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate, FIRMessagingDelegate {
-    
+class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate, MessagingDelegate {
+   
     var window: UIWindow?
     
     var googlePlistExists = false
@@ -38,7 +38,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             
             if googlePlistExists == true {
                 // For iOS 10 data message (sent via FCM)
-                FIRMessaging.messaging().remoteMessageDelegate = self
+                Messaging.messaging().delegate = self
             }
         } else {
             let settings: UIUserNotificationSettings = UIUserNotificationSettings(types: [.alert, .badge, .sound], categories: nil)
@@ -47,8 +47,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         
         if googlePlistExists == true {
             application.registerForRemoteNotifications()
-            FIRApp.configure()
-            NotificationCenter.default.addObserver(self, selector: #selector(AppDelegate.tokenRefreshNotification), name: NSNotification.Name.firInstanceIDTokenRefresh, object: nil)
+            FirebaseApp.configure()
         }
         
         let appData = NSDictionary(contentsOfFile: AppDelegate.dataPath())
@@ -60,6 +59,23 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
                      kOSSettingsKeyAutoPrompt: false,
                      kOSSettingsKeyInAppLaunchURL: false
                     ])
+                
+                if let status: OSPermissionSubscriptionState = OneSignal.getPermissionSubscriptionState() {
+                    let hasPrompted = status.permissionStatus.hasPrompted
+                    print("hasPrompted = \(hasPrompted)")
+                    let userStatus = status.permissionStatus.status
+                    print("userStatus = \(userStatus)")
+                    
+                    let isSubscribed = status.subscriptionStatus.subscribed
+                    print("isSubscribed = \(isSubscribed)")
+                    let userSubscriptionSetting = status.subscriptionStatus.userSubscriptionSetting
+                    print("userSubscriptionSetting = \(userSubscriptionSetting)")
+                    let userID = status.subscriptionStatus.userId
+                    print("userID = \(String(describing: userID))")
+                    let pushToken = status.subscriptionStatus.pushToken
+                    print("pushToken = \(String(describing: pushToken))")
+                }
+
                 print("OneSignal registered!")
             }
         } else {
@@ -82,23 +98,25 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             }
         }
         
+        if let appId = appData?.value(forKey: "AppIdAssignedFromApple") as? String {
+            if !appId.isEmpty {
+                let rate = RateMyApp.sharedInstance
+                rate.appID = appId
+                rate.trackAppUsage()
+            }
+        }
+        
         return true
     }
     
-    func applicationReceivedRemoteMessage(_ remoteMessage: FIRMessagingRemoteMessage) {
-        
+    func messaging(_ messaging: Messaging, didRefreshRegistrationToken fcmToken: String) {
+        let refreshedToken:String? = InstanceID.instanceID().token()
+        print("FOREBASE TOKEN: \(String(describing: refreshedToken))")
+        Messaging.messaging().shouldEstablishDirectChannel = true
     }
     
-    func tokenRefreshNotification(_ notification: Notification) {
-        let refreshedToken:String? = FIRInstanceID.instanceID().token()
-        print("FOREBASE TOKEN: \(String(describing: refreshedToken))")
-        FIRMessaging.messaging().connect { (error) in
-            if (error != nil) {
-                print("Unable to connect with FCM. \(String(describing: error))")
-            } else {
-                print("Connected to FCM.")
-            }
-        }
+    func application(received remoteMessage: MessagingRemoteMessage) {
+        
     }
     
     func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable : Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
@@ -130,7 +148,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     }
     
     func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
-        FIRInstanceID.instanceID().setAPNSToken(deviceToken, type: FIRInstanceIDAPNSTokenType.sandbox)
+        Messaging.messaging().apnsToken = deviceToken
     }
     
     func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
@@ -138,10 +156,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     }
     
     func applicationDidEnterBackground(_ application: UIApplication) {
-        if googlePlistExists == true {
-            FIRMessaging.messaging().disconnect()
-            print("Disconnected from FCM.")
-        }
+
     }
     
     func application(_ app: UIApplication, open url: URL, options: [UIApplicationOpenURLOptionsKey : Any] = [:]) -> Bool {
@@ -175,11 +190,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     
     func handleUserInfo(userInfo:[AnyHashable : Any]) {
         if let custom = userInfo["custom"] as? [AnyHashable : Any] {
-            if let a = custom["a"] as? [AnyHashable : Any] {
-                if let url = a["url"] as? String {
-                    print("url: \(url)")
-                    self.openURL(url: URL(string: url)!)
-                }
+            if let url = custom["u"] as? String {
+                print("url: \(url)")
+                self.openURL(url: URL(string: url)!)
             }
         }
     }

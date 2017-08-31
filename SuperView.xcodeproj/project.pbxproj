@@ -18,6 +18,7 @@
 		CD7BF2EE1DAB893A00212FC2 /* DefaultsKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD7BF2ED1DAB893A00212FC2 /* DefaultsKeys.swift */; };
 		CD999E1C1D95478F009AF731 /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = CD999E1B1D95478F009AF731 /* Launch Screen.storyboard */; };
 		CDBE24E31D800D52007B9363 /* domains.json in Resources */ = {isa = PBXBuildFile; fileRef = CDBE24E21D800D52007B9363 /* domains.json */; };
+		CDCD81701F58956E0063FF11 /* RateMyApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDCD816F1F58956E0063FF11 /* RateMyApp.swift */; };
 		EACDB836501E8DC0573A4BE7 /* Pods_SuperView.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D6D5D3AD4CF5ABC76859E470 /* Pods_SuperView.framework */; };
 /* End PBXBuildFile section */
 
@@ -39,6 +40,7 @@
 		CD999E1B1D95478F009AF731 /* Launch Screen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = "Launch Screen.storyboard"; sourceTree = "<group>"; };
 		CDBE24E21D800D52007B9363 /* domains.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = domains.json; sourceTree = "<group>"; };
 		CDC4D5121D8BDFE4009DFDD5 /* SuperView.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SuperView.entitlements; sourceTree = "<group>"; };
+		CDCD816F1F58956E0063FF11 /* RateMyApp.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RateMyApp.swift; sourceTree = "<group>"; };
 		D6D5D3AD4CF5ABC76859E470 /* Pods_SuperView.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SuperView.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -99,6 +101,7 @@
 				CD6A99EE1D5B1CE100E25A08 /* ViewController.swift */,
 				CD7BF2ED1DAB893A00212FC2 /* DefaultsKeys.swift */,
 				CD479A6E1D7DAD160076BFCE /* UIColorExtension.swift */,
+				CDCD816F1F58956E0063FF11 /* RateMyApp.swift */,
 				CDBE24E21D800D52007B9363 /* domains.json */,
 				CD2A1D911E07295800261CDE /* NoInternet.html */,
 				CD6A99F51D5B1E3500E25A08 /* Main.storyboard */,
@@ -140,7 +143,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 0730;
-				LastUpgradeCheck = 0800;
+				LastUpgradeCheck = 0830;
 				ORGANIZATIONNAME = "Brommko LLC";
 				TargetAttributes = {
 					CD6A99CA1D5B1B8600E25A08 = {
@@ -249,6 +252,7 @@
 			files = (
 				CD7BF2EE1DAB893A00212FC2 /* DefaultsKeys.swift in Sources */,
 				CD6A99EF1D5B1CE100E25A08 /* AppDelegate.swift in Sources */,
+				CDCD81701F58956E0063FF11 /* RateMyApp.swift in Sources */,
 				CD6A99F01D5B1CE100E25A08 /* ViewController.swift in Sources */,
 				CD479A6F1D7DAD160076BFCE /* UIColorExtension.swift in Sources */,
 			);
@@ -351,7 +355,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 785471B36607239D8FD446A7 /* Pods-SuperView.debug.xcconfig */;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = "$(inherited)";
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = SuperView/SuperView.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
@@ -372,7 +376,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 6FB41A02A45CA3294D09AF1A /* Pods-SuperView.release.xcconfig */;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = "$(inherited)";
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = SuperView/SuperView.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";

@@ -232,6 +232,18 @@
                 <div class="col-md-16">
                     <div class="card">
                         <div class="card-block">
+                            <h4 class="card-title">Make purchase</h4>
+                            <p id="purchased"></p>
+                            <div class="read-more">
+                                <a id="make_purchase" class="btn btn-primary" onClick="makePurchase()" >Purchased</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-16">
+                    <div class="card">
+                        <div class="card-block">
                             <h4 class="card-title">Is app purchased</h4>
                             <p id="purchased"></p>
                             <div class="read-more">
@@ -323,6 +335,10 @@
              window.bridge.post('firebasetoken', {}, (results, error) => {
                 $('#firebase_token').html(results.token)
             })
+        }
+
+        function makePurchase() {
+             window.bridge.post('make_purchase', {})
         }
 
         function isProductPurchased() {

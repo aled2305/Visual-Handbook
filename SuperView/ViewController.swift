@@ -163,9 +163,12 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         }, for: "onesignaltoken")
         
         self.wkWebView?.bridge.register({ (parameters, completion) in
-            let token = InstanceID.instanceID().token()
-            completion(.success(["token": token ?? "No Token"]))
-        }, for: "firebasetoken")
+            self.removeAdsAction()
+        }, for: "make_purchase")
+        
+        self.wkWebView?.bridge.register({ (parameters, completion) in
+            completion(.success(["purchased": Defaults[.adsPurchased]]))
+        }, for: "app_purchased")
         
         self.wkWebView?.bridge.register({ (parameters, completion) in
             completion(.success(["purchased": Defaults[.adsPurchased]]))

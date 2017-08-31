@@ -7,9 +7,9 @@
 	<key>Toolbar</key>
 	<true/>
 	<key>AdMobBannerUnitId</key>
-	<string></string>
+	<string>ca-app-pub-5514315741534690/3580595564</string>
 	<key>AdMobInterstitialUnitId</key>
-	<string></string>
+	<string>ca-app-pub-5514315741534690/5057328761</string>
 	<key>OneSignalAppID</key>
 	<string>ec291a7f-c387-4c06-a37e-34b0b24d97bf</string>
 	<key>ShowInterstitialInSecoundsEvery</key>

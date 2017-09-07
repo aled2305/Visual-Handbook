@@ -54,28 +54,32 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         if let oneSignalAppID = appData?.value(forKey: "OneSignalAppID") as? String {
             if !oneSignalAppID.isEmpty {
                 application.registerForRemoteNotifications()
-                OneSignal.initWithLaunchOptions(launchOptions, appId: oneSignalAppID, handleNotificationAction: nil, settings:
+                OneSignal.initWithLaunchOptions(launchOptions, appId: oneSignalAppID, handleNotificationReceived: { (notification) in
+                    print("Received Notification - \(String(describing: notification?.payload.notificationID))")
+                    
+                    if let url = notification?.payload?.launchURL {
+                        self.openURL(url: URL(string: url)!)
+                    }
+                }, handleNotificationAction: { (result) in
+                    let payload: OSNotificationPayload? = result?.notification.payload
+                    let fullMessage: String? = payload?.body
+                    if payload?.additionalData != nil {
+                        var additionalData: [AnyHashable: Any]? = payload?.additionalData
+                        if additionalData != nil {
+                            var userInfo = Dictionary<String, String>()
+                            userInfo["url"] = additionalData!["url"] as? String
+                            
+                            if let url = userInfo["url"] {
+                                self.openURL(url: URL(string: url)!)
+                            }
+                        }
+                    }
+                    print("fullMessage:: \(fullMessage!)")
+                }, settings:
                     [kOSSettingsKeyInAppAlerts: false,
                      kOSSettingsKeyAutoPrompt: false,
                      kOSSettingsKeyInAppLaunchURL: false
                     ])
-                
-                if let status: OSPermissionSubscriptionState = OneSignal.getPermissionSubscriptionState() {
-                    let hasPrompted = status.permissionStatus.hasPrompted
-                    print("hasPrompted = \(hasPrompted)")
-                    let userStatus = status.permissionStatus.status
-                    print("userStatus = \(userStatus)")
-                    
-                    let isSubscribed = status.subscriptionStatus.subscribed
-                    print("isSubscribed = \(isSubscribed)")
-                    let userSubscriptionSetting = status.subscriptionStatus.userSubscriptionSetting
-                    print("userSubscriptionSetting = \(userSubscriptionSetting)")
-                    let userID = status.subscriptionStatus.userId
-                    print("userID = \(String(describing: userID))")
-                    let pushToken = status.subscriptionStatus.pushToken
-                    print("pushToken = \(String(describing: pushToken))")
-                }
-
                 print("OneSignal registered!")
             }
         } else {
@@ -136,11 +140,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     @available(iOS 10.0, *)
     private func userNotificationCenter(center: UNUserNotificationCenter, willPresentNotification notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
         self.handleUserInfo(userInfo: notification.request.content.userInfo)
+        completionHandler([UNNotificationPresentationOptions.alert, UNNotificationPresentationOptions.sound, UNNotificationPresentationOptions.badge])
     }
     
     @available(iOS 10.0, *)
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
         self.handleUserInfo(userInfo: response.notification.request.content.userInfo)
+        completionHandler()
     }
     
     func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable: Any]) {

@@ -84,6 +84,11 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         _ = self.wkWebView?.goForward()
     }
     
+    func pullToRefresh(_ sender: UIRefreshControl?) {
+        self.reload()
+        sender?.endRefreshing()
+    }
+    
     func reload() {
         if var urlForWebView = self.wkWebView?.url {
             if urlForWebView.absoluteString.contains("NoInternet.html") {
@@ -156,6 +161,15 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         self.wkWebView?.bridge.printScriptMessageAutomatically = true
         self.wkWebView?.addObserver(self, forKeyPath: "loading", options: .new, context: nil)
         self.wkWebView?.addObserver(self, forKeyPath: "estimatedProgress", options: .new, context: nil)
+        
+        let appData = NSDictionary(contentsOfFile: AppDelegate.dataPath())
+        if let pullToRefresh = appData?.value(forKey: "PullToRefresh") as? Bool {
+            if pullToRefresh == true {
+                let refreshControl = UIRefreshControl()
+                refreshControl.addTarget(self, action: #selector(self.pullToRefresh(_:)), for: UIControlEvents.valueChanged)
+                self.wkWebView?.scrollView.addSubview(refreshControl)
+            }
+        }
         
         self.wkWebView?.bridge.register({ (parameters, completion) in
             let userID = OneSignal.getPermissionSubscriptionState()?.subscriptionStatus.userId
@@ -512,6 +526,12 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
                 print("this is sms")
             #endif
             openCustomApp(urlScheme: "comgooglemaps://", additional_info: url_elements[1])
+            decisionHandler(.cancel)
+        case "whatsapp":
+            #if DEBUG
+                print("this is whatsapp")
+            #endif
+            openCustomApp(urlScheme: "whatsapp://", additional_info: url_elements[1])
             decisionHandler(.cancel)
         default:
             #if DEBUG

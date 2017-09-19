@@ -15,8 +15,10 @@ import SwiftyUserDefaults
 import SwiftyStoreKit
 import Firebase
 import WKBridge
+import CoreLocation
+import AVFoundation
 
-class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKScriptMessageHandler, MBProgressHUDDelegate, GADBannerViewDelegate, GADInterstitialDelegate  {
+class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKScriptMessageHandler, MBProgressHUDDelegate, GADBannerViewDelegate, GADInterstitialDelegate, LocationServiceDelegate  {
     
     @IBOutlet weak var backgroundImage: UIImageView?
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
@@ -40,9 +42,18 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
     var showInterstitialInSecoundsEvery:Int! = 60
     var count:Int = 60
     var interstitialShownForFirstTime = false
-    
+    var audioPlayer = AVAudioPlayer()
+
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        let appData = NSDictionary(contentsOfFile: AppDelegate.dataPath())
+        if let gps = appData?.value(forKey: "UseGPS") as? Bool {
+            if gps == true {
+                LocationService.sharedInstance.delegate = self
+                LocationService.sharedInstance.startUpdatingLocation()
+            }
+        }
         
         self.activityIndicator.startAnimating()
         self.progressBar.progressTintColor = UIColor.green
@@ -54,7 +65,6 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         self.loadBannerAd()
         self.loadWebView()
         
-        let appData = NSDictionary(contentsOfFile: AppDelegate.dataPath())
         if let secounds = appData?.value(forKey: "ShowInterstitialInSecoundsEvery") as? String {
             if !secounds.isEmpty {
                 self.showInterstitialInSecoundsEvery = Int(secounds)!
@@ -232,6 +242,24 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         self.wkWebView?.bridge.register({ (parameters, completion) in
             RateMyApp.sharedInstance.showRatingAlert()
         }, for: "rate_app")
+        
+        self.wkWebView?.bridge.register({ (parameters, completion) in
+            if let name = parameters?["name"] as? String {
+                let components = name.components(separatedBy: ".")
+                let soundName = components.first
+                let extensionName = components.last
+                do {
+                    let alertSound = URL(fileURLWithPath: Bundle.main.path(forResource: soundName, ofType: extensionName)!)
+                    self.audioPlayer = try AVAudioPlayer(contentsOf: alertSound)
+                    if self.audioPlayer.prepareToPlay() {
+                        self.audioPlayer.play()
+                    }
+                } catch {
+                    
+                }
+            }
+        }, for: "play_sound")
+        
     }
     
     func fileURLForBuggyWKWebView8(fileURL: URL) throws -> URL {
@@ -858,6 +886,18 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
     //Uncommented:  white status bar.
     override var preferredStatusBarStyle : UIStatusBarStyle {
         return UIStatusBarStyle.lightContent
+    }
+    
+    // MARK: LocationService Delegate
+    func tracingLocation(_ currentLocation: CLLocation) {
+        let latitude = currentLocation.coordinate.latitude
+        let longitude = currentLocation.coordinate.longitude
+        
+        self.wkWebView?.bridge.post(action: "gps_location", parameters: ["latitude": latitude, "longitude": longitude])
+    }
+    
+    func tracingLocationDidFailWithError(_ error: NSError) {
+        print("tracing Location Error : \(error.description)")
     }
     
     deinit {

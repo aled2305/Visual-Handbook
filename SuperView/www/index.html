@@ -277,6 +277,18 @@
                 <div class="col-md-16">
                     <div class="card">
                         <div class="card-block">
+                            <h4 class="card-title">GPS Location</h4>
+                            <p id="gps_token"></p>
+                            <div class="read-more">
+                                <a id="get_gps_token" class="btn btn-primary" onClick="getGPSLocation()">Get GPS Location</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-16">
+                    <div class="card">
+                        <div class="card-block">
                             <h4 class="card-title">Show Loader</h4>
                             <div class="read-more">
                                 <a id="show_loader" class="btn btn-primary" onClick="showLoader()" >Show Loader</a>
@@ -302,6 +314,17 @@
                             <h4 class="card-title">Rate app</h4>
                             <div class="read-more">
                                 <a id="rate-app" class="btn btn-primary" onClick="rateApp()">Rate App</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-16">
+                    <div class="card">
+                        <div class="card-block">
+                            <h4 class="card-title">Play Sound</h4>
+                            <div class="read-more">
+                                <a id="sound-app" class="btn btn-primary" onClick="playSound()">Play</a>
                             </div>
                         </div>
                     </div>
@@ -372,6 +395,17 @@
         function rateApp() {
             window.bridge.post('rate_app', {})
         }
+
+        function getGPSLocation() {
+        	var unregisterHandler = window.bridge.on('gps_location', (parameters)=> {
+        		$('#gps_token').html("Longitude: " + parameters.longitude + " <br /> Latitude: " + parameters.latitude)
+        	})
+        }
+
+        function playSound() {
+            window.bridge.post('play_sound', {"name": "bird.mp3"})
+        }
+        
 
     </script>
 

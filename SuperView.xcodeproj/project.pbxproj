@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		CD22F7E71DAC1A2D00401E59 /* www in Resources */ = {isa = PBXBuildFile; fileRef = CD22F7E61DAC1A2D00401E59 /* www */; };
 		CD2A1D921E07295800261CDE /* NoInternet.html in Resources */ = {isa = PBXBuildFile; fileRef = CD2A1D911E07295800261CDE /* NoInternet.html */; };
+		CD3B95771F71881A003E0833 /* LocationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD3B95761F71881A003E0833 /* LocationService.swift */; };
+		CD3B957B1F7197E9003E0833 /* bird.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = CD3B957A1F7197E8003E0833 /* bird.mp3 */; };
 		CD479A6F1D7DAD160076BFCE /* UIColorExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD479A6E1D7DAD160076BFCE /* UIColorExtension.swift */; };
 		CD6A99E11D5B1BAA00E25A08 /* SuperView.plist in Resources */ = {isa = PBXBuildFile; fileRef = CD6A99E01D5B1BAA00E25A08 /* SuperView.plist */; };
 		CD6A99EA1D5B1BFA00E25A08 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CD6A99E91D5B1BFA00E25A08 /* Images.xcassets */; };
@@ -28,6 +30,8 @@
 		CD22F7E61DAC1A2D00401E59 /* www */ = {isa = PBXFileReference; lastKnownFileType = folder; path = www; sourceTree = "<group>"; };
 		CD27E1DE1D65EFE700EBE817 /* UniversalWebView-Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UniversalWebView-Bridging-Header.h"; sourceTree = "<group>"; };
 		CD2A1D911E07295800261CDE /* NoInternet.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = NoInternet.html; sourceTree = "<group>"; };
+		CD3B95761F71881A003E0833 /* LocationService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LocationService.swift; sourceTree = "<group>"; };
+		CD3B957A1F7197E8003E0833 /* bird.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = bird.mp3; sourceTree = "<group>"; };
 		CD479A6E1D7DAD160076BFCE /* UIColorExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIColorExtension.swift; sourceTree = "<group>"; };
 		CD6A99CB1D5B1B8600E25A08 /* SuperView.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SuperView.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CD6A99E01D5B1BAA00E25A08 /* SuperView.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = SuperView.plist; path = SuperView/SuperView.plist; sourceTree = "<group>"; };
@@ -99,9 +103,11 @@
 				CD22F7E61DAC1A2D00401E59 /* www */,
 				CD6A99ED1D5B1CE100E25A08 /* AppDelegate.swift */,
 				CD6A99EE1D5B1CE100E25A08 /* ViewController.swift */,
+				CD3B95761F71881A003E0833 /* LocationService.swift */,
 				CD7BF2ED1DAB893A00212FC2 /* DefaultsKeys.swift */,
 				CD479A6E1D7DAD160076BFCE /* UIColorExtension.swift */,
 				CDCD816F1F58956E0063FF11 /* RateMyApp.swift */,
+				CD3B957A1F7197E8003E0833 /* bird.mp3 */,
 				CDBE24E21D800D52007B9363 /* domains.json */,
 				CD2A1D911E07295800261CDE /* NoInternet.html */,
 				CD6A99F51D5B1E3500E25A08 /* Main.storyboard */,
@@ -189,6 +195,7 @@
 				CD999E1C1D95478F009AF731 /* Launch Screen.storyboard in Resources */,
 				CD2A1D921E07295800261CDE /* NoInternet.html in Resources */,
 				CD6A99EA1D5B1BFA00E25A08 /* Images.xcassets in Resources */,
+				CD3B957B1F7197E9003E0833 /* bird.mp3 in Resources */,
 				CDBE24E31D800D52007B9363 /* domains.json in Resources */,
 				CD6A99E11D5B1BAA00E25A08 /* SuperView.plist in Resources */,
 				CD6A99F61D5B1E3500E25A08 /* Main.storyboard in Resources */,
@@ -213,7 +220,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
 			showEnvVarsInLog = 0;
 		};
 		DB65B082F3B06527E81C52ED /* [CP] Embed Pods Frameworks */ = {
@@ -272,6 +279,7 @@
 				CD6A99EF1D5B1CE100E25A08 /* AppDelegate.swift in Sources */,
 				CDCD81701F58956E0063FF11 /* RateMyApp.swift in Sources */,
 				CD6A99F01D5B1CE100E25A08 /* ViewController.swift in Sources */,
+				CD3B95771F71881A003E0833 /* LocationService.swift in Sources */,
 				CD479A6F1D7DAD160076BFCE /* UIColorExtension.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

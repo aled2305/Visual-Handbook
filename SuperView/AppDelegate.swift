@@ -102,7 +102,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             }
         }
         
-        if let appId = appData?.value(forKey: "AppIdAssignedFromApple") as? String {
+        if let appId = appData?.value(forKey: "AppIDForRateMyApp") as? String {
             if !appId.isEmpty {
                 let rate = RateMyApp.sharedInstance
                 rate.appID = appId

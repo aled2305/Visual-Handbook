@@ -16,9 +16,11 @@
 	<string>60</string>
 	<key>RemoveAdsPurchaseId</key>
 	<string>com.brommko.universalwebview.removeads</string>
-	<key>AppIdAssignedFromApple</key>
+	<key>AppIDForRateMyApp</key>
 	<string>1200056404</string>
 	<key>PullToRefresh</key>
+	<true/>
+	<key>UseGPS</key>
 	<true/>
 </dict>
 </plist>

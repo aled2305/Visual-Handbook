@@ -322,9 +322,20 @@
                 <div class="col-md-16">
                     <div class="card">
                         <div class="card-block">
-                            <h4 class="card-title">Play Sound</h4>
+                            <h4 class="card-title">Play Music</h4>
                             <div class="read-more">
                                 <a id="sound-app" class="btn btn-primary" onClick="playSound()">Play</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-16">
+                    <div class="card">
+                        <div class="card-block">
+                            <h4 class="card-title">Stop Music</h4>
+                            <div class="read-more">
+                                <a id="sound-app" class="btn btn-primary" onClick="stopSound()">Stop</a>
                             </div>
                         </div>
                     </div>
@@ -404,6 +415,10 @@
 
         function playSound() {
             window.bridge.post('play_sound', {"name": "bird.mp3"})
+        }
+        
+        function stopSound() {
+        	window.bridge.post('stop_sound')
         }
         
 

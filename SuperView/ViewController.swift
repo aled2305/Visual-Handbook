@@ -47,6 +47,15 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        let audioSession = AVAudioSession.sharedInstance()
+        do {
+            try audioSession.setCategory(AVAudioSessionCategoryPlayback, with: .mixWithOthers)
+            try audioSession.setActive(true)
+            print("AVAudioSession is Active")
+        } catch {
+            print(error)
+        }
+        
         let appData = NSDictionary(contentsOfFile: AppDelegate.dataPath())
         if let gps = appData?.value(forKey: "UseGPS") as? Bool {
             if gps == true {
@@ -259,6 +268,10 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
                 }
             }
         }, for: "play_sound")
+        
+        self.wkWebView?.bridge.register({ (parameters, completion) in
+            self.audioPlayer.stop()
+        }, for: "stop_sound")
         
     }
     
@@ -534,33 +547,35 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
             #endif
             openCustomApp(urlScheme: "telprompt://", additional_info: url_elements[1])
             decisionHandler(.cancel)
-            
+            return
         case "sms":
             #if DEBUG
                 print("this is sms")
             #endif
             openCustomApp(urlScheme: "sms://", additional_info: url_elements[1])
             decisionHandler(.cancel)
-            
+            return
         case "mailto":
             #if DEBUG
                 print("this is mail")
             #endif
             openCustomApp(urlScheme: "mailto://", additional_info: url_elements[1])
             decisionHandler(.cancel)
-            
+            return
         case "comgooglemaps":
             #if DEBUG
                 print("this is sms")
             #endif
             openCustomApp(urlScheme: "comgooglemaps://", additional_info: url_elements[1])
             decisionHandler(.cancel)
+            return
         case "whatsapp":
             #if DEBUG
                 print("this is whatsapp")
             #endif
             openCustomApp(urlScheme: "whatsapp://", additional_info: url_elements[1])
             decisionHandler(.cancel)
+            return
         default:
             #if DEBUG
                 print("normal http request")

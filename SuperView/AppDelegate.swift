@@ -12,12 +12,13 @@ import SwiftyUserDefaults
 import SwiftyStoreKit
 
 @UIApplicationMain
-class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate, MessagingDelegate {
+class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate, MessagingDelegate, OSPermissionObserver, OSSubscriptionObserver {
    
     var window: UIWindow?
     
     var googlePlistExists = false
-    
+    let customURLScheme = "superview"
+
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
         
@@ -47,6 +48,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         
         if googlePlistExists == true {
             application.registerForRemoteNotifications()
+            FirebaseOptions.defaultOptions()?.deepLinkURLScheme = self.customURLScheme
             FirebaseApp.configure()
         }
         
@@ -54,33 +56,61 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         if let oneSignalAppID = appData?.value(forKey: "OneSignalAppID") as? String {
             if !oneSignalAppID.isEmpty {
                 application.registerForRemoteNotifications()
-                OneSignal.initWithLaunchOptions(launchOptions, appId: oneSignalAppID, handleNotificationReceived: { (notification) in
-                    print("Received Notification - \(String(describing: notification?.payload.notificationID))")
+
+                let notificationReceivedBlock: OSHandleNotificationReceivedBlock = { notification in
+                    print("Received Notification: \(notification!.payload.notificationID)")
+                    print("launchURL = \(String(describing: notification?.payload.launchURL))")
+                    print("content_available = \(String(describing: notification?.payload.contentAvailable))")
                     
-                    if let url = notification?.payload?.launchURL {
-                        self.openURL(url: URL(string: url)!)
+                    if let additionalData = notification?.payload!.additionalData {
+                        print("additionalData = \(additionalData)")
+                        // DEEP LINK and open url in ViewController WebView
+                        // Send notification with Additional Data > example key: "OpenURL" example value: "https://google.com"
+                        if let url = additionalData["OpenURL"] as? String {
+                            self.openURL(url: URL(string: url)!)
+                        }
                     }
-                }, handleNotificationAction: { (result) in
+                }
+                
+                let notificationOpenedBlock: OSHandleNotificationActionBlock = { result in
+                    // This block gets called when the user reacts to a notification received
                     let payload: OSNotificationPayload? = result?.notification.payload
-                    let fullMessage: String? = payload?.body
-                    if payload?.additionalData != nil {
-                        var additionalData: [AnyHashable: Any]? = payload?.additionalData
-                        if additionalData != nil {
-                            var userInfo = Dictionary<String, String>()
-                            userInfo["url"] = additionalData!["url"] as? String
-                            
-                            if let url = userInfo["url"] {
-                                self.openURL(url: URL(string: url)!)
+                    
+                    print("Message = \(payload!.body)")
+                    print("badge number = \(String(describing: payload?.badge))")
+                    print("notification sound = \(String(describing: payload?.sound))")
+                    
+                    if let additionalData = result!.notification.payload!.additionalData {
+                        print("additionalData = \(additionalData)")
+                        
+                        // DEEP LINK and open url in ViewController WebView
+                        // Send notification with Additional Data > example key: "OpenURL" example value: "https://google.com"
+                        if let url = additionalData["OpenURL"] as? String {
+                            self.openURL(url: URL(string: url)!)
+                        }
+                        
+                        if let actionSelected = payload?.actionButtons {
+                            print("actionSelected = \(actionSelected)")
+                        }
+                        
+                        // DEEP LINK from action buttons
+                        if let actionID = result?.action.actionID {
+                            print("actionID = \(actionID)")
+                            if actionID == "id2" {
+                                print("do something when button 2 is pressed")
+                            } else if actionID == "id1" {
+                                print("do something when button 1 is pressed")
                             }
                         }
                     }
-                    print("fullMessage:: \(fullMessage!)")
-                }, settings:
-                    [kOSSettingsKeyInAppAlerts: false,
-                     kOSSettingsKeyAutoPrompt: false,
-                     kOSSettingsKeyInAppLaunchURL: false
-                    ])
-                print("OneSignal registered!")
+                }
+                
+                let onesignalInitSettings = [kOSSettingsKeyAutoPrompt: false, kOSSettingsKeyInAppLaunchURL: true, ]
+                OneSignal.initWithLaunchOptions(launchOptions, appId: oneSignalAppID, handleNotificationReceived: notificationReceivedBlock, handleNotificationAction: notificationOpenedBlock, settings: onesignalInitSettings)
+                OneSignal.inFocusDisplayType = OSNotificationDisplayType.notification
+                // Add your AppDelegate as an obsserver
+                OneSignal.add(self as OSPermissionObserver)
+                OneSignal.add(self as OSSubscriptionObserver)
             }
         } else {
             print("OneSignal API Key is not in the plist file!")
@@ -113,94 +143,87 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         return true
     }
     
+    func onOSPermissionChanged(_ stateChanges: OSPermissionStateChanges!) {
+        // Example of detecting answering the permission prompt
+        if stateChanges.from.status == OSNotificationPermission.notDetermined {
+            if stateChanges.to.status == OSNotificationPermission.authorized {
+                print("Thanks for accepting notifications!")
+            } else if stateChanges.to.status == OSNotificationPermission.denied {
+                print("Notifications not accepted. You can turn them on later under your iOS settings.")
+            }
+        }
+        // prints out all properties
+        print("PermissionStateChanges: \n\(stateChanges)")
+    }
+    
+    func onOSSubscriptionChanged(_ stateChanges: OSSubscriptionStateChanges!) {
+        if !stateChanges.from.subscribed && stateChanges.to.subscribed {
+            print("Subscribed for OneSignal push notifications!")
+        }
+        print("SubscriptionStateChange: \n\(stateChanges)")
+    }
+    
     func messaging(_ messaging: Messaging, didRefreshRegistrationToken fcmToken: String) {
         let refreshedToken:String? = InstanceID.instanceID().token()
-        print("FOREBASE TOKEN: \(String(describing: refreshedToken))")
+        print("FIREBASE TOKEN: \(String(describing: refreshedToken))")
         Messaging.messaging().shouldEstablishDirectChannel = true
-    }
-    
-    func application(received remoteMessage: MessagingRemoteMessage) {
-        
-    }
-    
-    func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable : Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
-        self.handleUserInfo(userInfo: userInfo)
-    }
-    
-    func application(_ application: UIApplication, handleActionWithIdentifier identifier: String?, forRemoteNotification userInfo: [AnyHashable : Any], completionHandler: @escaping () -> Void) {
-        self.handleUserInfo(userInfo: userInfo)
-    }
-    
-    @available(iOS 10.0, *)
-    func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
-        self.handleUserInfo(userInfo: notification.request.content.userInfo)
-        completionHandler([UNNotificationPresentationOptions.alert, UNNotificationPresentationOptions.sound, UNNotificationPresentationOptions.badge])
-    }
-    
-    @available(iOS 10.0, *)
-    private func userNotificationCenter(center: UNUserNotificationCenter, willPresentNotification notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
-        self.handleUserInfo(userInfo: notification.request.content.userInfo)
-        completionHandler([UNNotificationPresentationOptions.alert, UNNotificationPresentationOptions.sound, UNNotificationPresentationOptions.badge])
-    }
-    
-    @available(iOS 10.0, *)
-    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
-        self.handleUserInfo(userInfo: response.notification.request.content.userInfo)
-        completionHandler()
-    }
-    
-    func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable: Any]) {
-        self.handleUserInfo(userInfo: userInfo)
     }
     
     func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
         Messaging.messaging().apnsToken = deviceToken
     }
     
-    func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
-        print("Couldn't register: \(error)")
-    }
-    
-    func applicationDidEnterBackground(_ application: UIApplication) {
-
-    }
-    
-    func application(_ app: UIApplication, open url: URL, options: [UIApplicationOpenURLOptionsKey : Any] = [:]) -> Bool {
-        print("APPDELEGATE: open url \(url)")
-        
-        self.openURL(url: url)
-
-        return true
-    }
-    
-    func open(_ url: URL, options: [String : Any] = [:], completionHandler completion: ((Bool) -> Swift.Void)? = nil){
-        print("APPDELEGATE: open url \(url) with completionHandler")
-        
-        self.openURL(url: url)
-
-        completion?(true)
-    }
-    
-    func application(_ application: UIApplication, handleOpen url: URL) -> Bool {
-        self.openURL(url: url)
-        return true
+    // [START openurl]
+    func application(_ app: UIApplication, open url: URL, options: [UIApplicationOpenURLOptionsKey : Any]) -> Bool {
+        return application(app, open: url, sourceApplication: nil, annotation: [:])
     }
     
     func application(_ application: UIApplication, open url: URL, sourceApplication: String?, annotation: Any) -> Bool {
-        print("openURL \(url)")
+        let dynamicLink = DynamicLinks.dynamicLinks()?.dynamicLink(fromCustomSchemeURL: url)
+        if let dynamicLink = dynamicLink {
+            // Handle the deep link. For example, show the deep-linked content or
+            // apply a promotional offer to the user's account.
+            // [START_EXCLUDE]
+            // In this sample, we just open an alert.
+            if #available(iOS 8.0, *) {
+                if let url = dynamicLink.url?.absoluteString {
+                    self.openURL(url: URL(string: url)!)
+                }
+            } else {
+                // Fallback on earlier versions
+            }
+            // [END_EXCLUDE]
+            return true
+        }
         
+        // [START_EXCLUDE silent]
+        // Show the deep link that the app was called with.
         self.openURL(url: url)
-        
-        return true
+        // [END_EXCLUDE]
+        return false
     }
-    
-    func handleUserInfo(userInfo:[AnyHashable : Any]) {
-        if let custom = userInfo["custom"] as? [AnyHashable : Any] {
-            if let url = custom["u"] as? String {
-                print("url: \(url)")
+    // [END openurl]
+    // [START continueuseractivity]
+    @available(iOS 8.0, *)
+    func application(_ application: UIApplication, continue userActivity: NSUserActivity, restorationHandler: @escaping ([Any]?) -> Void) -> Bool {
+        guard let dynamicLinks = DynamicLinks.dynamicLinks() else {
+            return false
+        }
+        let handled = dynamicLinks.handleUniversalLink(userActivity.webpageURL!) { (dynamiclink, error) in
+            // [START_EXCLUDE]
+            self.openURL(url: userActivity.webpageURL!)
+            // [END_EXCLUDE]
+        }
+        
+        // [START_EXCLUDE silent]
+        if !handled {
+            // Show the deep link URL from userActivity.
+            if let url = userActivity.webpageURL?.absoluteString {
                 self.openURL(url: URL(string: url)!)
             }
         }
+        // [END_EXCLUDE]
+        return handled
     }
     
     func openURL(url:URL) {

@@ -5,6 +5,9 @@ PODS:
   - Firebase/Core (4.1.1):
     - FirebaseAnalytics (= 4.0.3)
     - FirebaseCore (= 4.0.6)
+  - Firebase/DynamicLinks (4.1.1):
+    - Firebase/Core
+    - FirebaseDynamicLinks (= 2.1.0)
   - Firebase/Messaging (4.1.1):
     - Firebase/Core
     - FirebaseMessaging (= 2.0.2)
@@ -16,6 +19,8 @@ PODS:
   - FirebaseCore (4.0.6):
     - GoogleToolboxForMac/NSData+zlib (~> 2.1)
     - nanopb (~> 0.3)
+  - FirebaseDynamicLinks (2.1.0):
+    - FirebaseAnalytics (~> 4.0)
   - FirebaseInstanceID (2.0.2):
     - FirebaseCore (~> 4.0)
   - FirebaseMessaging (2.0.2):
@@ -45,6 +50,7 @@ PODS:
 DEPENDENCIES:
   - Firebase/AdMob
   - Firebase/Core
+  - Firebase/DynamicLinks
   - Firebase/Messaging
   - MBProgressHUD (~> 1.0.0)
   - OneSignal
@@ -56,6 +62,7 @@ SPEC CHECKSUMS:
   Firebase: 052c0de688fc87b414996eea13e223dd9fee3fa2
   FirebaseAnalytics: 76f754d37ca5b04f36856729b6af3ca0152d1069
   FirebaseCore: 28def3c643989c97ea5a69ea5000f5fa9902b9fd
+  FirebaseDynamicLinks: ed4cb6c42705aaa5e841ed2d76e3a4bddbec10c1
   FirebaseInstanceID: c4c7fca62c7b7330caee5da04f19a37ea37bb1c1
   FirebaseMessaging: 85af6c27188538b3a6f7dfd0b3b0596358cb0c39
   Google-Mobile-Ads-SDK: a43dc8efdb566c74d00ac6934c781de969348d80
@@ -68,6 +75,6 @@ SPEC CHECKSUMS:
   SwiftyUserDefaults: 0f1d45fc3aafb9064dac661e367f8f83fe21a4b4
   WKBridge: 677fc36b9a9e4a80b6f9c4e915480d8fd91f5ad5
 
-PODFILE CHECKSUM: 6cf10ecb7d96109d5aba2015ecbc92932bc641cd
+PODFILE CHECKSUM: c632133288e0ea40f3c61062e0e80dfb63ab7e35
 
 COCOAPODS: 1.3.1

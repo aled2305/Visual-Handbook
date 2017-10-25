@@ -20,6 +20,8 @@
 		CD7BF2EE1DAB893A00212FC2 /* DefaultsKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD7BF2ED1DAB893A00212FC2 /* DefaultsKeys.swift */; };
 		CD999E1C1D95478F009AF731 /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = CD999E1B1D95478F009AF731 /* Launch Screen.storyboard */; };
 		CDBE24E31D800D52007B9363 /* domains.json in Resources */ = {isa = PBXBuildFile; fileRef = CDBE24E21D800D52007B9363 /* domains.json */; };
+		CDC402301FA0F7380083F10E /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CDC4022F1FA0F7380083F10E /* StoreKit.framework */; };
+		CDC402321FA1075C0083F10E /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = CDC402311FA1075C0083F10E /* GoogleService-Info.plist */; };
 		CDCD81701F58956E0063FF11 /* RateMyApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDCD816F1F58956E0063FF11 /* RateMyApp.swift */; };
 		EACDB836501E8DC0573A4BE7 /* Pods_SuperView.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D6D5D3AD4CF5ABC76859E470 /* Pods_SuperView.framework */; };
 /* End PBXBuildFile section */
@@ -43,6 +45,8 @@
 		CD7BF2ED1DAB893A00212FC2 /* DefaultsKeys.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DefaultsKeys.swift; sourceTree = "<group>"; };
 		CD999E1B1D95478F009AF731 /* Launch Screen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = "Launch Screen.storyboard"; sourceTree = "<group>"; };
 		CDBE24E21D800D52007B9363 /* domains.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = domains.json; sourceTree = "<group>"; };
+		CDC4022F1FA0F7380083F10E /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
+		CDC402311FA1075C0083F10E /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		CDC4D5121D8BDFE4009DFDD5 /* SuperView.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SuperView.entitlements; sourceTree = "<group>"; };
 		CDCD816F1F58956E0063FF11 /* RateMyApp.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RateMyApp.swift; sourceTree = "<group>"; };
 		D6D5D3AD4CF5ABC76859E470 /* Pods_SuperView.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SuperView.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -54,6 +58,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				EACDB836501E8DC0573A4BE7 /* Pods_SuperView.framework in Frameworks */,
+				CDC402301FA0F7380083F10E /* StoreKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -72,6 +77,7 @@
 		6E4D7A0EBC02878DD491126D /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				CDC4022F1FA0F7380083F10E /* StoreKit.framework */,
 				D6D5D3AD4CF5ABC76859E470 /* Pods_SuperView.framework */,
 			);
 			name = Frameworks;
@@ -81,6 +87,7 @@
 			isa = PBXGroup;
 			children = (
 				CD6A99E01D5B1BAA00E25A08 /* SuperView.plist */,
+				CDC402311FA1075C0083F10E /* GoogleService-Info.plist */,
 				CD6A99CD1D5B1B8600E25A08 /* SuperView */,
 				CD6A99CC1D5B1B8600E25A08 /* Products */,
 				53BAC04DEB3107035ECE5DA7 /* Pods */,
@@ -158,6 +165,9 @@
 						LastSwiftMigration = 0800;
 						ProvisioningStyle = Automatic;
 						SystemCapabilities = {
+							com.apple.InAppPurchase = {
+								enabled = 1;
+							};
 							com.apple.Push = {
 								enabled = 1;
 							};
@@ -193,6 +203,7 @@
 			files = (
 				CD22F7E71DAC1A2D00401E59 /* www in Resources */,
 				CD999E1C1D95478F009AF731 /* Launch Screen.storyboard in Resources */,
+				CDC402321FA1075C0083F10E /* GoogleService-Info.plist in Resources */,
 				CD2A1D921E07295800261CDE /* NoInternet.html in Resources */,
 				CD6A99EA1D5B1BFA00E25A08 /* Images.xcassets in Resources */,
 				CD3B957B1F7197E9003E0833 /* bird.mp3 in Resources */,
@@ -386,6 +397,7 @@
 				CODE_SIGN_ENTITLEMENTS = SuperView/SuperView.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 56XX2LQCB2;
 				INFOPLIST_FILE = "$(SRCROOT)/SuperView/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
@@ -393,6 +405,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.bommko.UniversalWebView;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "SuperView/UniversalWebView-Bridging-Header.h";
 				SWIFT_VERSION = 3.0;
 			};
@@ -407,6 +420,7 @@
 				CODE_SIGN_ENTITLEMENTS = SuperView/SuperView.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 56XX2LQCB2;
 				INFOPLIST_FILE = "$(SRCROOT)/SuperView/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
@@ -414,6 +428,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.bommko.UniversalWebView;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "SuperView/UniversalWebView-Bridging-Header.h";
 				SWIFT_VERSION = 3.0;
 			};

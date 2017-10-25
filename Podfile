@@ -8,6 +8,7 @@ target 'SuperView' do
     pod 'Firebase/Core'
     pod 'Firebase/AdMob'
     pod 'Firebase/Messaging'
+    pod 'Firebase/DynamicLinks'
     pod 'OneSignal'
     pod 'SwiftyUserDefaults'
     pod 'SwiftyStoreKit'

@@ -64,8 +64,8 @@
 	<string>Advertisement would like to always use location.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Advertisement would like to store a photo.</string>
-    <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-    <string>Advertisement would like to use location always and when in use.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Advertisement would like to use location always and when in use.</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>audio</string>

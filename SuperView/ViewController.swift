@@ -520,92 +520,94 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
     func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
         print("NAVIGATION URL: \(String(describing: navigationAction.request.url!.host))")
         
-        let url = navigationAction.request.url?.absoluteString
-        
-        let hostAddress = navigationAction.request.url?.host
-        
-        // To connnect app store
-        if hostAddress == "itunes.apple.com" {
-            if UIApplication.shared.canOpenURL(navigationAction.request.url!) {
-                UIApplication.shared.openURL(navigationAction.request.url!)
-                decisionHandler(.cancel)
-                return
+        if let url = navigationAction.request.url {
+            let hostAddress = url.host
+            // To connnect app store
+            if hostAddress == "itunes.apple.com" {
+                if UIApplication.shared.canOpenURL(url) {
+                    UIApplication.shared.openURL(url)
+                    decisionHandler(.cancel)
+                    return
+                }
             }
-        }
-        
-        
-        #if DEBUG
-            print("url = \(url), host = \(hostAddress)")
-        #endif
-        
-        let url_elements = url!.components(separatedBy: ":")
-        
-        switch url_elements[0] {
-        case "tel":
-            #if DEBUG
-                print("this is phone number")
-            #endif
-            openCustomApp(urlScheme: "telprompt://", additional_info: url_elements[1])
-            decisionHandler(.cancel)
-            return
-        case "sms":
-            #if DEBUG
-                print("this is sms")
-            #endif
-            openCustomApp(urlScheme: "sms://", additional_info: url_elements[1])
-            decisionHandler(.cancel)
-            return
-        case "mailto":
-            #if DEBUG
-                print("this is mail")
-            #endif
-            openCustomApp(urlScheme: "mailto://", additional_info: url_elements[1])
-            decisionHandler(.cancel)
-            return
-        case "comgooglemaps":
-            #if DEBUG
-                print("this is sms")
-            #endif
-            openCustomApp(urlScheme: "comgooglemaps://", additional_info: url_elements[1])
-            decisionHandler(.cancel)
-            return
-        case "whatsapp":
-            #if DEBUG
-                print("this is whatsapp")
-            #endif
-            openCustomApp(urlScheme: "whatsapp://", additional_info: url_elements[1])
-            decisionHandler(.cancel)
-            return
-        default:
-            #if DEBUG
-                print("normal http request")
-            #endif
-        }
-        
-        let domain = self.getDomainFromURL(navigationAction.request.url!)
-        
-        if (navigationAction.navigationType == WKNavigationType.linkActivated) {
-            print("domains: \(domain)")
-            print("navigationType: LinkActivated")
             
-            self.dismissPopViewController(domain)
-            decisionHandler(WKNavigationActionPolicy.allow)
-        } else if (navigationAction.navigationType == WKNavigationType.backForward) {
-            print("navigationType: BackForward")
-            decisionHandler(WKNavigationActionPolicy.allow)
-        } else if (navigationAction.navigationType == WKNavigationType.formResubmitted) {
-            print("navigationType: FormResubmitted")
-            decisionHandler(WKNavigationActionPolicy.allow)
-        } else if (navigationAction.navigationType == WKNavigationType.formSubmitted) {
-            print("navigationType: FormSubmitted")
-            self.dismissPopViewController(domain)
-            decisionHandler(WKNavigationActionPolicy.allow)
-        } else if (navigationAction.navigationType == WKNavigationType.reload) {
-            print("navigationType: Reload")
-            decisionHandler(WKNavigationActionPolicy.allow)
-        } else {
-            self.dismissPopViewController(domain)
-            decisionHandler(WKNavigationActionPolicy.allow)
+            #if DEBUG
+                print("url = \(url), host = \(hostAddress)")
+            #endif
+            
+            if let url_elements = navigationAction.request.url?.absoluteString.components(separatedBy: ":") {
+                switch url_elements[0] {
+                case "itms-services":
+                    if UIApplication.shared.canOpenURL(url) {
+                        UIApplication.shared.openURL(url)
+                    }
+                    decisionHandler(.cancel)
+                    return
+                case "tel":
+                    #if DEBUG
+                        print("this is phone number")
+                    #endif
+                    openCustomApp(urlScheme: "telprompt://", additional_info: url_elements[1])
+                    decisionHandler(.cancel)
+                    return
+                case "sms":
+                    #if DEBUG
+                        print("this is sms")
+                    #endif
+                    openCustomApp(urlScheme: "sms://", additional_info: url_elements[1])
+                    decisionHandler(.cancel)
+                    return
+                case "mailto":
+                    #if DEBUG
+                        print("this is mail")
+                    #endif
+                    openCustomApp(urlScheme: "mailto://", additional_info: url_elements[1])
+                    decisionHandler(.cancel)
+                    return
+                case "comgooglemaps":
+                    #if DEBUG
+                        print("this is sms")
+                    #endif
+                    openCustomApp(urlScheme: "comgooglemaps://", additional_info: url_elements[1])
+                    decisionHandler(.cancel)
+                    return
+                case "whatsapp":
+                    #if DEBUG
+                        print("this is whatsapp")
+                    #endif
+                    openCustomApp(urlScheme: "whatsapp://", additional_info: url_elements[1])
+                    decisionHandler(.cancel)
+                    return
+                default:
+                    #if DEBUG
+                        print("normal http request")
+                    #endif
+                }
+            }
+            
+            let domain = self.getDomainFromURL(navigationAction.request.url!)
+            if (navigationAction.navigationType == WKNavigationType.linkActivated) {
+                print("domains: \(domain)")
+                print("navigationType: LinkActivated")
+                self.dismissPopViewController(domain)
+                decisionHandler(WKNavigationActionPolicy.allow)
+            } else if (navigationAction.navigationType == WKNavigationType.backForward) {
+                print("navigationType: BackForward")
+                decisionHandler(WKNavigationActionPolicy.allow)
+            } else if (navigationAction.navigationType == WKNavigationType.formResubmitted) {
+                print("navigationType: FormResubmitted")
+                decisionHandler(WKNavigationActionPolicy.allow)
+            } else if (navigationAction.navigationType == WKNavigationType.formSubmitted) {
+                print("navigationType: FormSubmitted")
+                self.dismissPopViewController(domain)
+                decisionHandler(WKNavigationActionPolicy.allow)
+            } else if (navigationAction.navigationType == WKNavigationType.reload) {
+                print("navigationType: Reload")
+                decisionHandler(WKNavigationActionPolicy.allow)
+            } else {
+                self.dismissPopViewController(domain)
+                decisionHandler(WKNavigationActionPolicy.allow)
+            }
         }
     }
     

@@ -95,20 +95,20 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         self.forwardButton?.isEnabled = false
     }
     
-    func back() {
+    @objc func back() {
         _ = self.wkWebView?.goBack()
     }
     
-    func forward() {
+    @objc func forward() {
         _ = self.wkWebView?.goForward()
     }
     
-    func pullToRefresh(_ sender: UIRefreshControl?) {
+    @objc func pullToRefresh(_ sender: UIRefreshControl?) {
         self.reload()
         sender?.endRefreshing()
     }
     
-    func reload() {
+    @objc func reload() {
         if var urlForWebView = self.wkWebView?.url {
             if urlForWebView.absoluteString.contains("NoInternet.html") {
                 let appData = NSDictionary(contentsOfFile: AppDelegate.dataPath())
@@ -328,7 +328,7 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         }
     }
     
-    func counterForInterstitialAd() {
+    @objc func counterForInterstitialAd() {
         if(self.interstitialShownForFirstTime == true && self.count > 0) {
             self.count = self.count - 1
             print("COUNTER FOR INTERSTITIAL AD: \(self.count)")
@@ -465,7 +465,7 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         return self.popViewController?.view as? WKWebView
     }
     
-    func dismissViewController() {
+    @objc func dismissViewController() {
         self.dismiss(animated: true, completion: nil)
         self.load.hide(animated: true)
     }
@@ -686,7 +686,7 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
             height = height - self.toolbar!.frame.height
         }
         
-        return  CGRect(x: 0, y: 0, width: bounds.width, height: height)
+        return  CGRect(x: -44, y: 0, width: bounds.width, height: height)
     }
     
     func getToolbar() -> UIToolbar? {
@@ -731,7 +731,7 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         return toolbar
     }
     
-    func removeAdsAction() {
+    @objc func removeAdsAction() {
         let appData = NSDictionary(contentsOfFile: AppDelegate.dataPath())
         if let productId = appData?.value(forKey: "RemoveAdsPurchaseId") as? String {
             if !productId.isEmpty {

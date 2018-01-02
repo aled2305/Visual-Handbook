@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="13529" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="13771" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
     <device id="retina5_9" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13527"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13772"/>
         <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -23,31 +23,37 @@
                                 <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
                             </imageView>
                             <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" animating="YES" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="v5e-gT-fB5">
-                                <rect key="frame" x="162.66666666666666" y="655" width="50" height="50"/>
+                                <rect key="frame" x="162" y="626" width="50" height="50"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="50" id="4wc-rX-uuH"/>
                                     <constraint firstAttribute="width" constant="50" id="d8x-0r-gf3"/>
                                 </constraints>
                                 <color key="color" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                             </activityIndicatorView>
-                            <progressView opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="750" progress="0.5" translatesAutoresizingMaskIntoConstraints="NO" id="wJs-wk-0VB">
-                                <rect key="frame" x="0.0" y="0.0" width="375" height="2"/>
+                            <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="28Q-pH-5FM">
+                                <rect key="frame" x="0.0" y="734" width="375" height="44"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="2" id="9O8-z5-obs"/>
+                                    <constraint firstAttribute="height" constant="44" id="kXs-rC-Kfl"/>
                                 </constraints>
-                            </progressView>
+                                <items>
+                                    <barButtonItem title="Item" id="vMB-bx-3Ai"/>
+                                </items>
+                            </toolbar>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
-                            <constraint firstItem="wJs-wk-0VB" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" id="1To-QU-D6H"/>
+                            <constraint firstItem="28Q-pH-5FM" firstAttribute="trailing" secondItem="dwl-OB-DnA" secondAttribute="trailing" id="0LO-CI-KNd"/>
+                            <constraint firstItem="dwl-OB-DnA" firstAttribute="bottom" secondItem="28Q-pH-5FM" secondAttribute="bottom" id="0xW-nM-0NV"/>
+                            <constraint firstItem="28Q-pH-5FM" firstAttribute="leading" secondItem="dwl-OB-DnA" secondAttribute="leading" id="37Y-hT-cnV"/>
                             <constraint firstItem="idm-Xy-jH9" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" id="NOh-C5-P9e"/>
+                            <constraint firstItem="28Q-pH-5FM" firstAttribute="bottom" secondItem="dwl-OB-DnA" secondAttribute="bottom" id="RD5-2x-5QN"/>
                             <constraint firstItem="idm-Xy-jH9" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" constant="-16" id="Rh2-cA-8tf"/>
-                            <constraint firstItem="dwl-OB-DnA" firstAttribute="trailing" secondItem="wJs-wk-0VB" secondAttribute="trailing" id="SnJ-7V-Mtu"/>
+                            <constraint firstItem="28Q-pH-5FM" firstAttribute="leading" secondItem="dwl-OB-DnA" secondAttribute="leading" id="T2C-4t-tLe"/>
                             <constraint firstAttribute="bottom" secondItem="idm-Xy-jH9" secondAttribute="bottom" id="Xil-3u-EO3"/>
                             <constraint firstAttribute="trailingMargin" secondItem="idm-Xy-jH9" secondAttribute="trailing" constant="-16" id="dnA-I7-Kpo"/>
-                            <constraint firstItem="wJs-wk-0VB" firstAttribute="leading" secondItem="dwl-OB-DnA" secondAttribute="leading" id="fKP-MK-E9s"/>
                             <constraint firstItem="v5e-gT-fB5" firstAttribute="centerX" secondItem="idm-Xy-jH9" secondAttribute="centerX" id="o5k-OA-frW"/>
-                            <constraint firstItem="dwl-OB-DnA" firstAttribute="bottom" secondItem="v5e-gT-fB5" secondAttribute="bottom" constant="73" id="q1z-FL-A25"/>
+                            <constraint firstItem="dwl-OB-DnA" firstAttribute="bottom" secondItem="v5e-gT-fB5" secondAttribute="bottom" constant="102" id="q1z-FL-A25"/>
+                            <constraint firstItem="28Q-pH-5FM" firstAttribute="trailing" secondItem="dwl-OB-DnA" secondAttribute="trailing" id="qI0-uD-fJg"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="dwl-OB-DnA"/>
                     </view>
@@ -55,7 +61,7 @@
                     <connections>
                         <outlet property="activityIndicator" destination="v5e-gT-fB5" id="I0C-tV-31n"/>
                         <outlet property="backgroundImage" destination="idm-Xy-jH9" id="NAH-EE-Y6e"/>
-                        <outlet property="progressBar" destination="wJs-wk-0VB" id="o6v-0k-Q4T"/>
+                        <outlet property="toolbar" destination="28Q-pH-5FM" id="Kmb-Yg-aGd"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>

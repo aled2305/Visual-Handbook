@@ -22,10 +22,10 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
     
     @IBOutlet weak var backgroundImage: UIImageView?
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
-    @IBOutlet weak var progressBar: UIProgressView!
-    
+//    @IBOutlet weak var progressBar: UIProgressView!
+    @IBOutlet weak var toolbar: UIToolbar!
     var bannerView: GADBannerView?
-    var toolbar:UIToolbar?
+
     var backButton: UIBarButtonItem?
     var forwardButton: UIBarButtonItem?
     var iapButton: UIBarButtonItem?
@@ -65,7 +65,7 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         }
         
         self.activityIndicator.startAnimating()
-        self.progressBar.progressTintColor = UIColor.green
+//        self.progressBar.progressTintColor = UIColor.green
         
         self.request.testDevices = ["bb394635b98430350b538d1e2ea1e9d6", kGADSimulatorID];
         
@@ -80,6 +80,15 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
                 self.timer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(ViewController.counterForInterstitialAd), userInfo: nil, repeats: true)
             }
         }
+    }
+    
+    override func viewWillLayoutSubviews() {
+        super.viewWillLayoutSubviews()
+        var safeAreaBottom:CGFloat = 0
+        if #available(iOS 11.0, *) {
+            safeAreaBottom = (UIApplication.shared.keyWindow?.safeAreaInsets.bottom ?? 0)!
+        }
+        self.bannerView?.frame.origin = CGPoint(x: self.view.frame.width/2 - self.bannerView!.frame.width/2, y: self.view.frame.height - self.bannerView!.frame.height - safeAreaBottom)
     }
     
     func showLoader() {
@@ -301,7 +310,7 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
     
     override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
         if (keyPath == "loading") {
-            self.progressBar.layer.zPosition = 1
+//            self.progressBar.layer.zPosition = 1
             self.backButton?.isEnabled = self.wkWebView!.canGoBack
             self.forwardButton?.isEnabled = self.wkWebView!.canGoForward
         } else if (keyPath == "estimatedProgress") {
@@ -309,7 +318,7 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
             if estimatedProgress > 0.90 {
                 self.didFinish()
             } else {
-                self.progressBar.progress = estimatedProgress
+//                self.progressBar.progress = estimatedProgress
             }
         }
     }
@@ -370,11 +379,11 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
                     let bounds = UIScreen.main.bounds
                     
                     var y:CGFloat = bounds.height - 50
-                    if self.toolbar != nil {
+                    if self.toolbar.isHidden == false {
                         y = y - self.toolbar!.frame.height
                     }
                     
-                    self.bannerView = GADBannerView(frame: CGRect(x: (bounds.width - 320) / 2, y: y, width: 320, height: 50))
+                    self.bannerView = GADBannerView(adSize: kGADAdSizeBanner)
                     self.bannerView?.adUnitID = bannerId
                     self.bannerView?.rootViewController = self
                     self.bannerView?.load(self.request)
@@ -412,11 +421,8 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
             if self.popViewController == nil {
                 if self.wkWebView != nil {
                     self.view.addSubview(self.wkWebView!)
-                    self.progressBar.layer.zPosition = 1
+//                    self.progressBar.layer.zPosition = 1
                     self.interstitialShownForFirstTime = true
-                }
-                if self.toolbar != nil {
-                    self.view.addSubview(self.toolbar!)
                 }
                 if self.bannerView != nil {
                     self.view.addSubview(self.bannerView!)
@@ -426,7 +432,7 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
             
         }) { (success) in
             self.load.hide(animated: true)
-            self.progressBar.layer.zPosition = 0
+//            self.progressBar.layer.zPosition = 0
         }
     }
     
@@ -647,7 +653,6 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
                     view.removeFromSuperview()
                 }
             }
-            self.bannerView = nil
             self.loadBannerAd()
         }) { (success) in
             
@@ -657,16 +662,13 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
     override func didRotate(from fromInterfaceOrientation: UIInterfaceOrientation) {
         UIView.transition(with: self.view, duration: 0.1, options: .transitionCrossDissolve, animations: {
             let bounds = UIScreen.main.bounds
-            self.toolbar?.frame = CGRect(x: 0, y: bounds.height - 40, width: bounds.width, height: 40)
+//            self.toolbar?.frame = CGRect(x: 0, y: bounds.height - 40, width: bounds.width, height: 40)
             
             var y:CGFloat = bounds.height - 50
-            if self.toolbar != nil {
+            if self.toolbar.isHidden == false {
                 y = y - self.toolbar!.frame.height
             }
             
-            if self.bannerView != nil {
-                self.view.addSubview(self.bannerView!)
-            }
             self.bannerView?.frame = CGRect(x: (bounds.width - 320) / 2, y: y, width: 320, height: 50)
             self.wkWebView?.frame = self.getFrame()
         }) { (success) in
@@ -678,19 +680,18 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         let bounds = UIScreen.main.bounds
         
         var height:CGFloat = bounds.height
-        if self.bannerView != nil {
-            height = height - self.bannerView!.frame.height
-        }
+//        if self.bannerView != nil {
+//            height = height - self.bannerView!.frame.height
+//        }
         
-        if self.toolbar != nil {
+        if self.toolbar.isHidden == false {
             height = height - self.toolbar!.frame.height
         }
         
-        return  CGRect(x: -44, y: 0, width: bounds.width, height: height)
+        return  CGRect(x: 0, y: 0, width: bounds.width, height: height)
     }
     
     func getToolbar() -> UIToolbar? {
-        var toolbar: UIToolbar?
         let appData = NSDictionary(contentsOfFile: AppDelegate.dataPath())
         if appData?.value(forKey: "Toolbar") as? Bool == true {
             self.backButton = UIBarButtonItem(image: UIImage(named: "back"), style: .plain, target: self, action: #selector(ViewController.back))
@@ -723,12 +724,12 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
             
             items.append(flexibleSpaceButton)
             items.append(self.reloadButton!)
-            
-            let bounds = UIScreen.main.bounds
-            toolbar = UIToolbar(frame: CGRect(x: 0, y: bounds.height - 40, width: bounds.width, height: 40))
-            toolbar!.setItems(items, animated: true)
+
+            self.toolbar!.setItems(items, animated: true)
+        } else {
+            self.toolbar.isHidden = true
         }
-        return toolbar
+        return self.toolbar
     }
     
     @objc func removeAdsAction() {
@@ -864,9 +865,8 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
                     view.removeFromSuperview()
                 }
             }
-            self.bannerView = nil
             
-            if self.toolbar != nil {
+            if self.toolbar.isHidden == false {
                 var buttons = self.toolbar!.items!
                 for button in self.toolbar!.items! {
                     if button == self.iapButton {

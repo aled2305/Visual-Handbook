@@ -41,7 +41,6 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
     var timer:Timer?
     var showInterstitialInSecoundsEvery:Int! = 60
     var count:Int = 60
-    var interstitialShownForFirstTime = false
     var audioPlayer = AVAudioPlayer()
 
     override func viewDidLoad() {
@@ -84,11 +83,17 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
     
     override func viewWillLayoutSubviews() {
         super.viewWillLayoutSubviews()
+        
+        var bannerHeight = self.view.frame.height - (self.bannerView?.frame.height ?? 0)
         var safeAreaBottom:CGFloat = 0
         if #available(iOS 11.0, *) {
             safeAreaBottom = (UIApplication.shared.keyWindow?.safeAreaInsets.bottom ?? 0)!
+            bannerHeight -= safeAreaBottom
         }
-        self.bannerView?.frame.origin = CGPoint(x: self.view.frame.width/2 - self.bannerView!.frame.width/2, y: self.view.frame.height - self.bannerView!.frame.height - safeAreaBottom)
+        if self.toolbar.isHidden == false {
+            bannerHeight -= self.toolbar.frame.height
+        }
+        self.bannerView?.frame.origin = CGPoint(x: self.view.frame.width/2 - self.bannerView!.frame.width/2, y:  bannerHeight)
     }
     
     func showLoader() {
@@ -214,6 +219,12 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         }, for: "make_purchase")
         
         self.wkWebView?.bridge.register({ (parameters, completion) in
+            if self.interstitial != nil && self.interstitial.isReady {
+                self.interstitial.present(fromRootViewController: self)
+            }
+        }, for: "show_interstitial")
+        
+        self.wkWebView?.bridge.register({ (parameters, completion) in
             completion(.success(["purchased": Defaults[.adsPurchased]]))
         }, for: "app_purchased")
         
@@ -316,7 +327,7 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         } else if (keyPath == "estimatedProgress") {
             let estimatedProgress = Float(self.wkWebView!.estimatedProgress)
             if estimatedProgress > 0.90 {
-                self.didFinish()
+//                self.didFinish()
             } else {
 //                self.progressBar.progress = estimatedProgress
             }
@@ -338,7 +349,7 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
     }
     
     @objc func counterForInterstitialAd() {
-        if(self.interstitialShownForFirstTime == true && self.count > 0) {
+        if(self.count > 0) {
             self.count = self.count - 1
             print("COUNTER FOR INTERSTITIAL AD: \(self.count)")
         } else {
@@ -348,10 +359,9 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
     }
     
     func showInterstitialAd() {
-        if self.interstitialShownForFirstTime == true && self.count == self.showInterstitialInSecoundsEvery {
+        if self.count == self.showInterstitialInSecoundsEvery {
             if self.interstitial != nil && self.interstitial.isReady {
                 self.interstitial.present(fromRootViewController: self)
-                self.interstitialShownForFirstTime = true
             } else {
                 self.loadBannerAd()
             }
@@ -422,12 +432,11 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
                 if self.wkWebView != nil {
                     self.view.addSubview(self.wkWebView!)
 //                    self.progressBar.layer.zPosition = 1
-                    self.interstitialShownForFirstTime = true
+                    self.toolbar.isHidden = false
                 }
                 if self.bannerView != nil {
                     self.view.addSubview(self.bannerView!)
                 }
-                self.showInterstitialAd()
             }
             
         }) { (success) in
@@ -438,9 +447,6 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
     
     func getViewController(_ configuration:WKWebViewConfiguration) -> UIViewController {
         let webView:WKWebView = WKWebView(frame: self.view.frame, configuration: configuration)
-//        // [START add_handler]
-//        webView.configuration.userContentController.add(self, name: "firebase")
-//        // [END add_handler]
         webView.frame = UIScreen.main.bounds
         webView.autoresizingMask = [.flexibleWidth, .flexibleHeight];
         webView.navigationDelegate = self
@@ -726,6 +732,7 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
             items.append(self.reloadButton!)
 
             self.toolbar!.setItems(items, animated: true)
+            self.toolbar.layer.zPosition = 1
         } else {
             self.toolbar.isHidden = true
         }

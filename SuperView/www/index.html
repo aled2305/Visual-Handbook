@@ -307,6 +307,17 @@
                         </div>
                     </div>
                 </div>
+                
+                <div class="col-md-16">
+                        <div class="card">
+                            <div class="card-block">
+                            <h4 class="card-title">Show Interstitial Ad</h4>
+                            <div class="read-more">
+                                <a id="show_interstitial" class="btn btn-primary" onClick="showInterstitial()" >Show Loader</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
                 <div class="col-md-16">
                     <div class="card">
@@ -383,6 +394,10 @@
 
         function makePurchase() {
              window.bridge.post('make_purchase', {})
+        }
+        
+        function showInterstitial() {
+            window.bridge.post('show_interstitial', {})
         }
 
         function isProductPurchased() {

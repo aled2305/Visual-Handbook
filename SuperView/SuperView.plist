@@ -5,7 +5,7 @@
 	<key>URL</key>
 	<string></string>
 	<key>Toolbar</key>
-	<false/>
+	<true/>
 	<key>AdMobBannerUnitId</key>
 	<string>ca-app-pub-5514315741534690/3580595564</string>
 	<key>AdMobInterstitialUnitId</key>

@@ -701,10 +701,6 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         let bounds = UIScreen.main.bounds
         
         var height:CGFloat = bounds.height
-//        if self.bannerView != nil {
-//            height = height - self.bannerView!.frame.height
-//        }
-        
         if self.toolbar.isHidden == false {
             height = height - self.toolbar!.frame.height
             var safeAreaBottom:CGFloat = 0

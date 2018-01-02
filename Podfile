@@ -13,4 +13,6 @@ target 'SuperView' do
     pod 'SwiftyUserDefaults'
     pod 'SwiftyStoreKit'
     pod 'WKBridge'
+    pod 'GCDWebServer', '~> 3.0'
+
 end

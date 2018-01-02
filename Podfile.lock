@@ -28,6 +28,9 @@ PODS:
     - FirebaseInstanceID (~> 2.0)
     - GoogleToolboxForMac/Logger (~> 2.1)
     - Protobuf (~> 3.1)
+  - GCDWebServer (3.4.2):
+    - GCDWebServer/Core (= 3.4.2)
+  - GCDWebServer/Core (3.4.2)
   - Google-Mobile-Ads-SDK (7.27.0)
   - GoogleToolboxForMac/Defines (2.1.3)
   - GoogleToolboxForMac/Logger (2.1.3):
@@ -51,6 +54,7 @@ DEPENDENCIES:
   - Firebase/Core
   - Firebase/DynamicLinks
   - Firebase/Messaging
+  - GCDWebServer (~> 3.0)
   - MBProgressHUD (~> 1.0.0)
   - OneSignal
   - SwiftyStoreKit
@@ -64,6 +68,7 @@ SPEC CHECKSUMS:
   FirebaseDynamicLinks: b708fbc1e9bd77c2d992812736b206820e283203
   FirebaseInstanceID: 81df5805a08001e69138664bdd02c6719a9ac80f
   FirebaseMessaging: dfdcd307c2382290a1e297a81d0f18370f5b1bcd
+  GCDWebServer: 8d67ee9f634b4bb91eb4b8aee440318a5fc6debd
   Google-Mobile-Ads-SDK: 83f7f890e638ce8f1debd440ea363338c9f6be3b
   GoogleToolboxForMac: 2501e2ad72a52eb3dfe7bd9aee7dad11b858bd20
   MBProgressHUD: 4890f671c94e8a0f3cf959aa731e9de2f036d71a
@@ -74,6 +79,6 @@ SPEC CHECKSUMS:
   SwiftyUserDefaults: 0f1d45fc3aafb9064dac661e367f8f83fe21a4b4
   WKBridge: 677fc36b9a9e4a80b6f9c4e915480d8fd91f5ad5
 
-PODFILE CHECKSUM: 5d2689ff4d9789d963d30dd3adb626dfea61b24b
+PODFILE CHECKSUM: 2b4e0ac118a10ac87c457a94c7523bd08056bd04
 
 COCOAPODS: 1.3.1

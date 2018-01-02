@@ -17,14 +17,17 @@ import Firebase
 import WKBridge
 import CoreLocation
 import AVFoundation
+import GCDWebServer
 
-class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKScriptMessageHandler, MBProgressHUDDelegate, GADBannerViewDelegate, GADInterstitialDelegate, LocationServiceDelegate  {
+class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKScriptMessageHandler, MBProgressHUDDelegate, GADBannerViewDelegate, GADInterstitialDelegate, LocationServiceDelegate, GCDWebServerDelegate  {
     
     @IBOutlet weak var backgroundImage: UIImageView?
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
 //    @IBOutlet weak var progressBar: UIProgressView!
     @IBOutlet weak var toolbar: UIToolbar!
     var bannerView: GADBannerView?
+
+    let webServer = GCDWebServer()
 
     var backButton: UIBarButtonItem?
     var forwardButton: UIBarButtonItem?
@@ -158,7 +161,28 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
                 }
             }
         }
-
+    }
+    
+    func loadLocalWebServer() {
+        let folderPath = Bundle.main.path(forResource: "www", ofType: nil)
+        do {
+            self.webServer.delegate = self
+            self.webServer.addGETHandler(forBasePath: "/", directoryPath: folderPath!, indexFilename: nil, cacheAge: 3600, allowRangeRequests: true)
+            let options = [
+                GCDWebServerOption_Port: 8080,
+                GCDWebServerOption_BindToLocalhost: true,
+                GCDWebServerOption_ServerName: "GCD Web Server"
+                ] as [String : Any]
+            try self.webServer.start(options: options)
+            print("Visit \(String(describing: webServer.serverURL)) in your web browser")
+        } catch {
+            print ("File HTML error")
+        }
+    }
+    
+    func webServerDidStart(_ server: GCDWebServer) {
+        self.mainURL = self.webServer.serverURL?.appendingPathComponent("index.html")
+        self.loadWebSite()
     }
     
     func loadWebSite() {
@@ -176,17 +200,7 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
             let requestObj = URLRequest(url: self.mainURL!)
             _ = self.wkWebView?.load(requestObj)
         } else {
-            var fileURL = URL(fileURLWithPath: Bundle.main.path(forResource: "www/index", ofType: "html")!)
-            if #available(iOS 9.0, *) {
-                _ = self.wkWebView?.loadFileURL(fileURL, allowingReadAccessTo: fileURL)
-            } else {
-                do {
-                    fileURL = try fileURLForBuggyWKWebView8(fileURL: fileURL)
-                    _ = self.wkWebView?.load(URLRequest(url: fileURL))
-                } catch let error as NSError {
-                    print("Error: " + error.debugDescription)
-                }
-            }
+            self.loadLocalWebServer()
         }
         
         self.wkWebView?.navigationDelegate = self
@@ -433,6 +447,7 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
                     self.view.addSubview(self.wkWebView!)
 //                    self.progressBar.layer.zPosition = 1
                     self.toolbar.isHidden = false
+                    self.wkWebView?.frame = self.getFrame()
                 }
                 if self.bannerView != nil {
                     self.view.addSubview(self.bannerView!)
@@ -692,6 +707,11 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         
         if self.toolbar.isHidden == false {
             height = height - self.toolbar!.frame.height
+            var safeAreaBottom:CGFloat = 0
+            if #available(iOS 11.0, *) {
+                safeAreaBottom = (UIApplication.shared.keyWindow?.safeAreaInsets.bottom ?? 0)!
+                height -= safeAreaBottom
+            }
         }
         
         return  CGRect(x: 0, y: 0, width: bounds.width, height: height)

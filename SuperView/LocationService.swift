@@ -39,7 +39,7 @@ class LocationService: NSObject, CLLocationManagerDelegate {
             // you have 2 choice 
             // 1. requestAlwaysAuthorization
             // 2. requestWhenInUseAuthorization
-            locationManager.requestAlwaysAuthorization()
+            locationManager.requestWhenInUseAuthorization()
         }
         
         locationManager.desiredAccuracy = kCLLocationAccuracyBest // The accuracy of the location data

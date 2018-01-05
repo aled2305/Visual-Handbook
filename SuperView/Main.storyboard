@@ -24,9 +24,7 @@
                                 <constraints>
                                     <constraint firstAttribute="height" constant="44" id="kXs-rC-Kfl"/>
                                 </constraints>
-                                <items>
-                                    <barButtonItem title="Item" id="vMB-bx-3Ai"/>
-                                </items>
+                                <items/>
                             </toolbar>
                             <imageView userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="splash" translatesAutoresizingMaskIntoConstraints="NO" id="idm-Xy-jH9">
                                 <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>

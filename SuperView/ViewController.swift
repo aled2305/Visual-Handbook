@@ -23,7 +23,6 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
     
     @IBOutlet weak var backgroundImage: UIImageView?
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
-//    @IBOutlet weak var progressBar: UIProgressView!
     @IBOutlet weak var toolbar: UIToolbar!
     var bannerView: GADBannerView?
 
@@ -49,15 +48,6 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        let audioSession = AVAudioSession.sharedInstance()
-        do {
-            try audioSession.setCategory(AVAudioSessionCategoryPlayback, with: .mixWithOthers)
-            try audioSession.setActive(true)
-            print("AVAudioSession is Active")
-        } catch {
-            print(error)
-        }
-        
         let appData = NSDictionary(contentsOfFile: AppDelegate.dataPath())
         if let gps = appData?.value(forKey: "UseGPS") as? Bool {
             if gps == true {
@@ -67,8 +57,6 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         }
         
         self.activityIndicator.startAnimating()
-//        self.progressBar.progressTintColor = UIColor.green
-        
         self.request.testDevices = ["bb394635b98430350b538d1e2ea1e9d6", kGADSimulatorID];
         
         self.loadToolbar()
@@ -335,15 +323,12 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
     
     override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
         if (keyPath == "loading") {
-//            self.progressBar.layer.zPosition = 1
             self.backButton?.isEnabled = self.wkWebView!.canGoBack
             self.forwardButton?.isEnabled = self.wkWebView!.canGoForward
         } else if (keyPath == "estimatedProgress") {
             let estimatedProgress = Float(self.wkWebView!.estimatedProgress)
             if estimatedProgress > 0.90 {
 //                self.didFinish()
-            } else {
-//                self.progressBar.progress = estimatedProgress
             }
         }
     }
@@ -445,7 +430,6 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
             if self.popViewController == nil {
                 if self.wkWebView != nil {
                     self.view.addSubview(self.wkWebView!)
-//                    self.progressBar.layer.zPosition = 1
                     self.toolbar.isHidden = false
                     self.wkWebView?.frame = self.getFrame()
                 }
@@ -456,7 +440,6 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
             
         }) { (success) in
             self.load.hide(animated: true)
-//            self.progressBar.layer.zPosition = 0
         }
     }
     

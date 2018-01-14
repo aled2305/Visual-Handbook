@@ -180,9 +180,11 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         self.wkWebView?.configuration.userContentController.add(self, name: "firebase")
         // [END add_handler]
         if self.mainURL != nil {
-            let request = URLRequest(url: self.mainURL!, cachePolicy: .reloadIgnoringLocalCacheData)
-//            let request = URLRequest(url: self.mainURL!) // UNCOMMENT THIS LINE AND COMMENT THE LINE ABOVE IF YOU NEED CACHE
-            _ = self.wkWebView?.load(request)
+            if self.appData?.value(forKey: "EnableWebViewCache") as? Bool == true {
+                _ = self.wkWebView?.load(URLRequest(url: self.mainURL!))
+            } else {
+                _ = self.wkWebView?.load(URLRequest(url: self.mainURL!, cachePolicy: .reloadIgnoringLocalCacheData))
+            }
         } else {
             if self.appData?.value(forKey: "UseLocalServer(Best for games)") as? Bool == true {
                 self.loadLocalWebServer()
@@ -193,7 +195,11 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
                 } else {
                     do {
                         fileURL = try fileURLForBuggyWKWebView8(fileURL: fileURL)
-                        _ = self.wkWebView?.load(URLRequest(url: fileURL))
+                        if self.appData?.value(forKey: "EnableWebViewCache") as? Bool == true {
+                            _ = self.wkWebView?.load(URLRequest(url: fileURL))
+                        } else {
+                            _ = self.wkWebView?.load(URLRequest(url: fileURL, cachePolicy: .reloadIgnoringLocalCacheData))
+                        }
                     } catch let error as NSError {
                         print("Error: " + error.debugDescription)
                     }
@@ -560,7 +566,11 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         } else {
             do {
                 fileURL = try fileURLForBuggyWKWebView8(fileURL: fileURL)
-                _ = self.wkWebView?.load(URLRequest(url: fileURL))
+                if self.appData?.value(forKey: "EnableWebViewCache") as? Bool == true {
+                    _ = self.wkWebView?.load(URLRequest(url: fileURL))
+                } else {
+                    _ = self.wkWebView?.load(URLRequest(url: fileURL, cachePolicy: .reloadIgnoringLocalCacheData))
+                }
             } catch let error as NSError {
                 print("Error: " + error.debugDescription)
             }

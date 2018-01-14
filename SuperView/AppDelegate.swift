@@ -59,7 +59,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
                 let notificationReceivedBlock: OSHandleNotificationReceivedBlock = { notification in
                     print("Received Notification: \(notification!.payload.notificationID)")
-                    print("launchURL = \(String(describing: notification?.payload.launchURL))")
+                    
+                    if let launchURL = notification?.payload.launchURL {
+                        print("launchURL = \(String(describing: launchURL))")
+                        self.openURL(url: URL(string: launchURL)!)
+                    }
+
                     print("content_available = \(String(describing: notification?.payload.contentAvailable))")
                     
                     if let additionalData = notification?.payload!.additionalData {
@@ -105,7 +110,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
                     }
                 }
                 
-                let onesignalInitSettings = [kOSSettingsKeyAutoPrompt: false, kOSSettingsKeyInAppLaunchURL: appData?.value(forKey: "OneSignalLaunchURLInApp") as? Bool ?? true]
+                let onesignalInitSettings = [kOSSettingsKeyAutoPrompt: false, kOSSettingsKeyInAppLaunchURL: true]
                 OneSignal.initWithLaunchOptions(launchOptions, appId: oneSignalAppID, handleNotificationReceived: notificationReceivedBlock, handleNotificationAction: notificationOpenedBlock, settings: onesignalInitSettings)
                 OneSignal.inFocusDisplayType = OSNotificationDisplayType.notification
                 // Add your AppDelegate as an obsserver

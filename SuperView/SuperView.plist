@@ -24,7 +24,7 @@
 	<true/>
 	<key>UseLocalServer(Best for games)</key>
 	<false/>
-	<key>OneSignalLaunchURLInApp</key>
-	<true/>
+	<key>EnableWebViewCache</key>
+	<false/>
 </dict>
 </plist>

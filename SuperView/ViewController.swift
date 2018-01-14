@@ -28,10 +28,10 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
 
     let webServer = GCDWebServer()
 
-    var backButton: UIBarButtonItem?
-    var forwardButton: UIBarButtonItem?
-    var iapButton: UIBarButtonItem?
-    var reloadButton: UIBarButtonItem?
+    @IBOutlet var backButton: UIBarButtonItem?
+    @IBOutlet var forwardButton: UIBarButtonItem?
+    @IBOutlet var iapButton: UIBarButtonItem?
+    @IBOutlet var reloadButton: UIBarButtonItem?
     
     var mainURL:URL?
     var wkWebView: WKWebView?
@@ -44,12 +44,21 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
     var showInterstitialInSecoundsEvery:Int! = 60
     var count:Int = 60
     var audioPlayer = AVAudioPlayer()
+    let appData = NSDictionary(contentsOfFile: AppDelegate.dataPath())
 
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        let appData = NSDictionary(contentsOfFile: AppDelegate.dataPath())
-        if let gps = appData?.value(forKey: "UseGPS") as? Bool {
+        let audioSession = AVAudioSession.sharedInstance()
+        do {
+            try audioSession.setCategory(AVAudioSessionCategoryPlayback, with: .mixWithOthers)
+            try audioSession.setActive(true)
+            print("AVAudioSession is Active")
+        } catch {
+            print(error)
+        }
+        
+        if let gps = self.appData?.value(forKey: "UseGPS") as? Bool {
             if gps == true {
                 LocationService.sharedInstance.delegate = self
                 LocationService.sharedInstance.startUpdatingLocation()
@@ -64,7 +73,7 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         self.loadBannerAd()
         self.loadWebView()
         
-        if let secounds = appData?.value(forKey: "ShowInterstitialInSecoundsEvery") as? String {
+        if let secounds = self.appData?.value(forKey: "ShowInterstitialInSecoundsEvery") as? String {
             if !secounds.isEmpty {
                 self.showInterstitialInSecoundsEvery = Int(secounds)!
                 self.timer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(ViewController.counterForInterstitialAd), userInfo: nil, repeats: true)
@@ -81,7 +90,7 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
             safeAreaBottom = (UIApplication.shared.keyWindow?.safeAreaInsets.bottom ?? 0)!
             bannerHeight -= safeAreaBottom
         }
-        if self.toolbar.isHidden == false {
+        if self.appData?.value(forKey: "Toolbar") as? Bool == true {
             bannerHeight -= self.toolbar.frame.height
         }
         self.bannerView?.frame.origin = CGPoint(x: self.view.frame.width/2 - self.bannerView!.frame.width/2, y:  bannerHeight)
@@ -95,16 +104,15 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
     }
     
     func loadToolbar() {
-        self.toolbar = self.getToolbar()
         self.backButton?.isEnabled = false
         self.forwardButton?.isEnabled = false
     }
     
-    @objc func back() {
+    @objc @IBAction func back() {
         _ = self.wkWebView?.goBack()
     }
     
-    @objc func forward() {
+    @objc @IBAction func forward() {
         _ = self.wkWebView?.goForward()
     }
     
@@ -113,20 +121,8 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         sender?.endRefreshing()
     }
     
-    @objc func reload() {
-        if var urlForWebView = self.wkWebView?.url {
-            if urlForWebView.absoluteString.contains("NoInternet.html") {
-                let appData = NSDictionary(contentsOfFile: AppDelegate.dataPath())
-                if let urlString = appData?.value(forKey: "URL") as? String {
-                    if !urlString.isEmpty {
-                        urlForWebView = URL(string: urlString)!
-                    }
-                }
-            }
-            self.showLoader()
-            let request = URLRequest(url: urlForWebView)
-            _ = self.wkWebView?.load(request)
-        }
+    @objc @IBAction func reload() {
+        self.wkWebView?.reloadFromOrigin()
     }
     
     func loadWebView() {
@@ -140,8 +136,7 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         }
         
         if self.mainURL == nil {
-            let appData = NSDictionary(contentsOfFile: AppDelegate.dataPath())
-            if let urlString = appData?.value(forKey: "URL") as? String {
+            if let urlString = self.appData?.value(forKey: "URL") as? String {
                 if !urlString.isEmpty {
                     if self.mainURL == nil {
                         self.mainURL = URL(string: urlString)
@@ -185,10 +180,25 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         self.wkWebView?.configuration.userContentController.add(self, name: "firebase")
         // [END add_handler]
         if self.mainURL != nil {
-            let requestObj = URLRequest(url: self.mainURL!)
-            _ = self.wkWebView?.load(requestObj)
+            let request = URLRequest(url: self.mainURL!, cachePolicy: .reloadIgnoringLocalCacheData)
+//            let request = URLRequest(url: self.mainURL!) // UNCOMMENT THIS LINE AND COMMENT THE LINE ABOVE IF YOU NEED CACHE
+            _ = self.wkWebView?.load(request)
         } else {
-            self.loadLocalWebServer()
+            if self.appData?.value(forKey: "UseLocalServer(Best for games)") as? Bool == true {
+                self.loadLocalWebServer()
+            } else {
+                var fileURL = URL(fileURLWithPath: Bundle.main.path(forResource: "www/index", ofType: "html")!)
+                if #available(iOS 9.0, *) {
+                    _ = self.wkWebView?.loadFileURL(fileURL, allowingReadAccessTo: fileURL)
+                } else {
+                    do {
+                        fileURL = try fileURLForBuggyWKWebView8(fileURL: fileURL)
+                        _ = self.wkWebView?.load(URLRequest(url: fileURL))
+                    } catch let error as NSError {
+                        print("Error: " + error.debugDescription)
+                    }
+                }
+            }
         }
         
         self.wkWebView?.navigationDelegate = self
@@ -197,8 +207,7 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         self.wkWebView?.addObserver(self, forKeyPath: "loading", options: .new, context: nil)
         self.wkWebView?.addObserver(self, forKeyPath: "estimatedProgress", options: .new, context: nil)
         
-        let appData = NSDictionary(contentsOfFile: AppDelegate.dataPath())
-        if let pullToRefresh = appData?.value(forKey: "PullToRefresh") as? Bool {
+        if let pullToRefresh = self.appData?.value(forKey: "PullToRefresh") as? Bool {
             if pullToRefresh == true {
                 let refreshControl = UIRefreshControl()
                 refreshControl.addTarget(self, action: #selector(self.pullToRefresh(_:)), for: UIControlEvents.valueChanged)
@@ -335,8 +344,7 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
     
     func loadInterstitalAd() {
         if Defaults[.adsPurchased] == false {
-            let appData = NSDictionary(contentsOfFile: AppDelegate.dataPath())
-            if let interstitialId = appData?.value(forKey: "AdMobInterstitialUnitId") as? String {
+            if let interstitialId = self.appData?.value(forKey: "AdMobInterstitialUnitId") as? String {
                 if !interstitialId.isEmpty {
                     self.interstitial = GADInterstitial(adUnitID: interstitialId)
                     self.interstitial.delegate = self
@@ -382,13 +390,12 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
     
     func loadBannerAd(){
         if Defaults[.adsPurchased] == false {
-            let appData = NSDictionary(contentsOfFile: AppDelegate.dataPath())
-            if let bannerId = appData?.value(forKey: "AdMobBannerUnitId") as? String {
+            if let bannerId = self.appData?.value(forKey: "AdMobBannerUnitId") as? String {
                 if !bannerId.isEmpty {
                     let bounds = UIScreen.main.bounds
                     
                     var y:CGFloat = bounds.height - 50
-                    if self.toolbar.isHidden == false {
+                    if self.appData?.value(forKey: "Toolbar") as? Bool == true {
                         y = y - self.toolbar!.frame.height
                     }
                     
@@ -416,8 +423,7 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         
         UIView.transition(with: self.view, duration: 0.1, options: .transitionCrossDissolve, animations: {
             
-            let appData = NSDictionary(contentsOfFile: AppDelegate.dataPath())
-            if let urlString = appData?.value(forKey: "URL") as? String {
+            if let urlString = self.appData?.value(forKey: "URL") as? String {
                 if !urlString.isEmpty {
                     if self.mainURL != URL(string: urlString) {
                         self.mainURL = URL(string: urlString)
@@ -430,7 +436,9 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
             if self.popViewController == nil {
                 if self.wkWebView != nil {
                     self.view.addSubview(self.wkWebView!)
-                    self.toolbar.isHidden = false
+                    if self.appData?.value(forKey: "Toolbar") as? Bool == true {
+                        self.toolbar.isHidden = false
+                    }
                     self.wkWebView?.frame = self.getFrame()
                 }
                 if self.bannerView != nil {
@@ -506,6 +514,43 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         // You can inject java script here if required as below
         //        let javascript = "var meta = document.createElement('meta');meta.setAttribute('name', 'viewport');meta.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no');document.getElementsByTagName('head')[0].appendChild(meta);";
         //        self.wkWebView.evaluateJavaScript(javascript, completionHandler: nil)
+    }
+    
+    func webView(_ webView: WKWebView, runJavaScriptAlertPanelWithMessage message: String, initiatedByFrame frame: WKFrameInfo, completionHandler: @escaping () -> Void) {
+        let alertController = UIAlertController(title: nil, message: message, preferredStyle: .actionSheet)
+        alertController.addAction(UIAlertAction(title: "OK", style: .default, handler: { (action) in
+            completionHandler()
+        }))
+        present(alertController, animated: true, completion: nil)
+    }
+    
+    func webView(_ webView: WKWebView, runJavaScriptConfirmPanelWithMessage message: String, initiatedByFrame frame: WKFrameInfo, completionHandler: @escaping (Bool) -> Void) {
+        let alertController = UIAlertController(title: nil, message: message, preferredStyle: .actionSheet)
+        alertController.addAction(UIAlertAction(title: "OK", style: .default, handler: { (action) in
+            completionHandler(true)
+        }))
+        alertController.addAction(UIAlertAction(title: "Cancel", style: .default, handler: { (action) in
+            completionHandler(false)
+        }))
+        present(alertController, animated: true, completion: nil)
+    }
+    
+    func webView(_ webView: WKWebView, runJavaScriptTextInputPanelWithPrompt prompt: String, defaultText: String?, initiatedByFrame frame: WKFrameInfo, completionHandler: @escaping (String?) -> Void) {
+        let alertController = UIAlertController(title: nil, message: prompt, preferredStyle: .alert)
+        alertController.addTextField { (textField) in
+            textField.text = defaultText
+        }
+        alertController.addAction(UIAlertAction(title: "OK", style: .default, handler: { (action) in
+            if let text = alertController.textFields?.first?.text {
+                completionHandler(text)
+            } else {
+                completionHandler(defaultText)
+            }
+        }))
+        alertController.addAction(UIAlertAction(title: "Cancel", style: .default, handler: { (action) in
+            completionHandler(nil)
+        }))
+        present(alertController, animated: true, completion: nil)
     }
     
     func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
@@ -685,7 +730,7 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         
         var height:CGFloat = bounds.height
         if self.toolbar.isHidden == false {
-            height = height - self.toolbar!.frame.height
+            height -= self.toolbar!.frame.height
             var safeAreaBottom:CGFloat = 0
             if #available(iOS 11.0, *) {
                 safeAreaBottom = (UIApplication.shared.keyWindow?.safeAreaInsets.bottom ?? 0)!
@@ -696,51 +741,8 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         return  CGRect(x: 0, y: 0, width: bounds.width, height: height)
     }
     
-    func getToolbar() -> UIToolbar? {
-        let appData = NSDictionary(contentsOfFile: AppDelegate.dataPath())
-        if appData?.value(forKey: "Toolbar") as? Bool == true {
-            self.backButton = UIBarButtonItem(image: UIImage(named: "back"), style: .plain, target: self, action: #selector(ViewController.back))
-            self.forwardButton = UIBarButtonItem(image: UIImage(named: "forward"), style: .plain, target: self, action: #selector(ViewController.forward))
-            self.reloadButton = UIBarButtonItem(image: UIImage(named: "refresh"), style: .plain, target: self, action: #selector(ViewController.reload))
-            self.iapButton = UIBarButtonItem(image: UIImage(named: "block-ad"), style: .plain, target: self, action: #selector(ViewController.removeAdsAction))
-            
-            self.backButton?.tintColor = UIColor(hexString: "0e8494")
-            self.forwardButton?.tintColor = UIColor(hexString: "0e8494")
-            self.reloadButton?.tintColor = UIColor(hexString: "0e8494")
-            self.iapButton?.tintColor = UIColor(hexString: "0e8494")
-            
-            let fixedSpaceButton = UIBarButtonItem(barButtonSystemItem: .fixedSpace, target: self, action: nil)
-            fixedSpaceButton.width = 42
-            let flexibleSpaceButton = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: self, action: nil)
-            
-            var items = [UIBarButtonItem]()
-            items.append(self.backButton!)
-            items.append(fixedSpaceButton)
-            items.append(self.forwardButton!)
-            
-            if let productId = appData?.value(forKey: "RemoveAdsPurchaseId") as? String {
-                if !productId.isEmpty {
-                    if Defaults[.adsPurchased] == false {
-                        items.append(flexibleSpaceButton)
-                        items.append(self.iapButton!)
-                    }
-                }
-            }
-            
-            items.append(flexibleSpaceButton)
-            items.append(self.reloadButton!)
-
-            self.toolbar!.setItems(items, animated: true)
-            self.toolbar.layer.zPosition = 1
-        } else {
-            self.toolbar.isHidden = true
-        }
-        return self.toolbar
-    }
-    
-    @objc func removeAdsAction() {
-        let appData = NSDictionary(contentsOfFile: AppDelegate.dataPath())
-        if let productId = appData?.value(forKey: "RemoveAdsPurchaseId") as? String {
+    @objc @IBAction func removeAdsAction() {
+        if let productId = self.appData?.value(forKey: "RemoveAdsPurchaseId") as? String {
             if !productId.isEmpty {
                 SwiftyStoreKit.retrieveProductsInfo([productId]) { result in
                     if let product = result.retrievedProducts.first {
@@ -777,8 +779,7 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
     }
     
     func restorePurchases() {
-        let appData = NSDictionary(contentsOfFile: AppDelegate.dataPath())
-        if let productId = appData?.value(forKey: "RemoveAdsPurchaseId") as? String {
+        if let productId = self.appData?.value(forKey: "RemoveAdsPurchaseId") as? String {
             SwiftyStoreKit.restorePurchases() { results in
                 if results.restoreFailedPurchases.count > 0 {
                     print("Restore Failed: \(results.restoreFailedPurchases)")
@@ -808,8 +809,7 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
     }
     
     func purchase() {
-        let appData = NSDictionary(contentsOfFile: AppDelegate.dataPath())
-        if let productId = appData?.value(forKey: "RemoveAdsPurchaseId") as? String {
+        if let productId = self.appData?.value(forKey: "RemoveAdsPurchaseId") as? String {
             if !productId.isEmpty {
                 SwiftyStoreKit.purchaseProduct(productId) { result in
                     switch result {

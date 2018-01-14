@@ -22,5 +22,7 @@
 	<true/>
 	<key>UseGPS</key>
 	<true/>
+	<key>UseLocalServer(Best for games)</key>
+	<false/>
 </dict>
 </plist>

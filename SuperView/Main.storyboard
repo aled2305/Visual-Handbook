@@ -19,16 +19,47 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="splash" translatesAutoresizingMaskIntoConstraints="NO" id="idm-Xy-jH9">
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
+                            </imageView>
                             <toolbar hidden="YES" opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="28Q-pH-5FM">
                                 <rect key="frame" x="0.0" y="734" width="375" height="44"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="44" id="kXs-rC-Kfl"/>
                                 </constraints>
-                                <items/>
+                                <items>
+                                    <barButtonItem image="back" id="Mps-UD-1kE">
+                                        <color key="tintColor" red="0.0" green="0.50196081400000003" blue="0.50196081400000003" alpha="1" colorSpace="calibratedRGB"/>
+                                        <connections>
+                                            <action selector="back" destination="BYZ-38-t0r" id="0om-kE-dcG"/>
+                                        </connections>
+                                    </barButtonItem>
+                                    <barButtonItem width="42" systemItem="fixedSpace" id="j0e-iS-tjV"/>
+                                    <barButtonItem image="forward" id="qAa-hM-Equ">
+                                        <color key="tintColor" red="0.0" green="0.50196081400000003" blue="0.50196081400000003" alpha="1" colorSpace="calibratedRGB"/>
+                                        <connections>
+                                            <action selector="forward" destination="BYZ-38-t0r" id="gih-bA-dCc"/>
+                                        </connections>
+                                    </barButtonItem>
+                                    <barButtonItem systemItem="flexibleSpace" id="Nux-Az-qkb"/>
+                                    <barButtonItem image="block-ad" id="TAs-Yj-eKa">
+                                        <color key="tintColor" red="0.0" green="0.50196081400000003" blue="0.50196081400000003" alpha="1" colorSpace="calibratedRGB"/>
+                                        <connections>
+                                            <action selector="removeAdsAction:" destination="BYZ-38-t0r" id="hvE-oB-gTU"/>
+                                        </connections>
+                                    </barButtonItem>
+                                    <barButtonItem systemItem="flexibleSpace" id="9r7-aK-4yG"/>
+                                    <barButtonItem image="refresh" id="jkO-2e-Z7O">
+                                        <color key="tintColor" red="0.0" green="0.50196081400000003" blue="0.50196081400000003" alpha="1" colorSpace="calibratedRGB"/>
+                                        <connections>
+                                            <action selector="reload" destination="BYZ-38-t0r" id="rhX-wJ-6g0"/>
+                                        </connections>
+                                    </barButtonItem>
+                                </items>
+                                <connections>
+                                    <outlet property="delegate" destination="BYZ-38-t0r" id="YzF-IP-VXg"/>
+                                </connections>
                             </toolbar>
-                            <imageView userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="splash" translatesAutoresizingMaskIntoConstraints="NO" id="idm-Xy-jH9">
-                                <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
-                            </imageView>
                             <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" animating="YES" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="v5e-gT-fB5">
                                 <rect key="frame" x="162" y="626" width="50" height="50"/>
                                 <constraints>
@@ -58,7 +89,11 @@
                     <navigationItem key="navigationItem" id="b6q-rx-O0O"/>
                     <connections>
                         <outlet property="activityIndicator" destination="v5e-gT-fB5" id="I0C-tV-31n"/>
+                        <outlet property="backButton" destination="Mps-UD-1kE" id="gpj-rh-IoY"/>
                         <outlet property="backgroundImage" destination="idm-Xy-jH9" id="NAH-EE-Y6e"/>
+                        <outlet property="forwardButton" destination="qAa-hM-Equ" id="jv4-NF-GCM"/>
+                        <outlet property="iapButton" destination="TAs-Yj-eKa" id="e3U-UR-C8V"/>
+                        <outlet property="reloadButton" destination="jkO-2e-Z7O" id="dKd-5I-SjA"/>
                         <outlet property="toolbar" destination="28Q-pH-5FM" id="Kmb-Yg-aGd"/>
                     </connections>
                 </viewController>
@@ -68,6 +103,10 @@
         </scene>
     </scenes>
     <resources>
+        <image name="back" width="22" height="22"/>
+        <image name="block-ad" width="22" height="22"/>
+        <image name="forward" width="22" height="22"/>
+        <image name="refresh" width="20" height="22"/>
         <image name="splash" width="2048" height="2048"/>
     </resources>
 </document>

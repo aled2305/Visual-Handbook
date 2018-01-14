@@ -21,15 +21,15 @@
     <!-- Template styles -->
     <style rel="stylesheet">
         /* TEMPLATE STYLES */
-        
+
         main {
             margin-top: 3rem;
         }
-        
+
         main .card {
             margin-bottom: 2rem;
         }
-        
+
         @media only screen and (max-width: 768px) {
             .read-more {
                 text-align: center;
@@ -307,13 +307,13 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="col-md-16">
                         <div class="card">
                             <div class="card-block">
                             <h4 class="card-title">Show Interstitial Ad</h4>
                             <div class="read-more">
-                                <a id="show_interstitial" class="btn btn-primary" onClick="showInterstitial()" >Show Loader</a>
+                                <a id="show_interstitial" class="btn btn-primary" onClick="showInterstitial()" >Show Ad</a>
                             </div>
                         </div>
                     </div>
@@ -347,6 +347,41 @@
                             <h4 class="card-title">Stop Music</h4>
                             <div class="read-more">
                                 <a id="sound-app" class="btn btn-primary" onClick="stopSound()">Stop</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-16">
+                    <div class="card">
+                        <div class="card-block">
+                            <h4 class="card-title">Show JavaScript Alert</h4>
+                            <div class="read-more">
+                                <a id="sound-app" class="btn btn-primary" onClick="alertTest()">Alert</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-16">
+                    <div class="card">
+                        <div class="card-block">
+                            <h4 class="card-title">Show JavaScript Confirm</h4>
+                            <p id="confirm"></p>
+                            <div class="read-more">
+                                <a id="sound-app" class="btn btn-primary" onClick="confirmTest()">Confirm</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-16">
+                    <div class="card">
+                        <div class="card-block">
+                          <h4 class="card-title">Show JavaScript Prompt</h4>
+                            <p id="prompt"></p>
+                            <div class="read-more">
+                                <a id="get_prompt" class="btn btn-primary" onClick="promptTest()">Prompt</a>
                             </div>
                         </div>
                     </div>
@@ -395,7 +430,7 @@
         function makePurchase() {
              window.bridge.post('make_purchase', {})
         }
-        
+
         function showInterstitial() {
             window.bridge.post('show_interstitial', {})
         }
@@ -431,11 +466,30 @@
         function playSound() {
             window.bridge.post('play_sound', {"name": "bird.mp3"})
         }
-        
+
         function stopSound() {
         	window.bridge.post('stop_sound')
         }
-        
+
+        function alertTest() {
+            alert("Test");
+        }
+
+        function confirmTest() {
+            var r = confirm("Press a button!");
+            if (r == true) {
+                $('#confirm').html("You pressed OK!");
+            } else {
+                $('#confirm').html("You pressed Cancel!");
+            }
+        }
+
+        function promptTest() {
+            var person = prompt("Please enter your name", "Harry Potter");
+            if (person != null) {
+                $('#prompt').html("Hello " + person + "! How are you today?");
+            }
+        }
 
     </script>
 

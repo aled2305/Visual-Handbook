@@ -45,7 +45,7 @@
                                     <barButtonItem image="block-ad" id="TAs-Yj-eKa">
                                         <color key="tintColor" red="0.0" green="0.50196081400000003" blue="0.50196081400000003" alpha="1" colorSpace="calibratedRGB"/>
                                         <connections>
-                                            <action selector="removeAdsAction:" destination="BYZ-38-t0r" id="hvE-oB-gTU"/>
+                                            <action selector="removeAdsAction" destination="BYZ-38-t0r" id="PEk-2l-lem"/>
                                         </connections>
                                     </barButtonItem>
                                     <barButtonItem systemItem="flexibleSpace" id="9r7-aK-4yG"/>
